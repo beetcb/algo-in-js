@@ -1,4 +1,4 @@
-import * as tests from "./tests";
+import * as tests from './tests';
 
 /**
  * Impl Array.prototype.flat()
@@ -118,7 +118,10 @@ function findNthFibonacii(n) {
     if (nth === n) {
       return fiboNum;
     }
-    [lastNum, fiboNum] = [fiboNum, lastNum + fiboNum];
+    [lastNum, fiboNum] = [
+      fiboNum,
+      lastNum + fiboNum,
+    ];
     nth++;
   }
 }
@@ -144,9 +147,16 @@ function longestPalindrome(s) {
   // a c a
   // l   r
   //l      r
-  function extendBasedOnMid(s, leftIdx, rightIdx) {
+  function extendBasedOnMid(
+    s,
+    leftIdx,
+    rightIdx
+  ) {
     while (leftIdx >= 0 && rightIdx < s.length) {
-      const [leftVal, rightVal] = [s[leftIdx], s[rightIdx]];
+      const [leftVal, rightVal] = [
+        s[leftIdx],
+        s[rightIdx],
+      ];
       if (leftVal !== rightVal) {
         break;
       }
@@ -158,7 +168,7 @@ function longestPalindrome(s) {
     return s.substring(leftIdx + 1, rightIdx);
   }
 
-  let longestSub = "";
+  let longestSub = '';
   let mid = 0;
 
   while (mid < s.length - 1) {
@@ -221,7 +231,8 @@ var dailyTemperatures = function (temperatures) {
   while (curTempIdx < temperatures.length) {
     let topOfStack = lowerIdxs.slice(-1)[0];
     if (
-      temperatures[curTempIdx] < temperatures[topOfStack]
+      temperatures[curTempIdx] <
+      temperatures[topOfStack]
     ) {
       lowerIdxs.push(curTempIdx);
       continue;
@@ -233,12 +244,14 @@ var dailyTemperatures = function (temperatures) {
       }
 
       if (
-        temperatures[curTempIdx] <= temperatures[topOfStack]
+        temperatures[curTempIdx] <=
+        temperatures[topOfStack]
       ) {
         break;
       }
 
-      resNums[topOfStack] = curTempIdx - topOfStack;
+      resNums[topOfStack] =
+        curTempIdx - topOfStack;
       lowerIdxs.pop();
       topOfStack = lowerIdxs.slice(-1)[0];
     }
@@ -270,11 +283,14 @@ var dailyTemperatures = function (temperatures) {
  * @state rightBwdIdx = len-1,>left
  */
 var reverseString = function (s) {
-  let [leftFwdIdx, rightBwdIdx] = [0, s.length - 1];
+  let [leftFwdIdx, rightBwdIdx] = [
+    0,
+    s.length - 1,
+  ];
   while (leftFwdIdx < rightBwdIdx) {
     [s[leftFwdIdx], s[rightBwdIdx]] = [
       s[rightBwdIdx],
-      s[leftFwdIdx]
+      s[leftFwdIdx],
     ];
     leftFwdIdx++;
     rightBwdIdx--;
@@ -324,9 +340,9 @@ var isAnagram = function (s, t) {
     readCharToCount[charFromT] -= 1;
   }
 
-  const isAnagram = !Object.values(readCharToCount).filter(
-    (c) => c !== 0
-  ).length;
+  const isAnagram = !Object.values(
+    readCharToCount
+  ).filter((c) => c !== 0).length;
 
   return isAnagram;
 };
@@ -375,7 +391,8 @@ var isBalanced = function (root) {
 
   const isChildHeightMatch =
     Math.abs(
-      getMaxHeight(root.left) - getMaxHeight(root.right)
+      getMaxHeight(root.left) -
+        getMaxHeight(root.right)
     ) <= 1;
   return (
     isChildHeightMatch &&
@@ -476,7 +493,11 @@ var hasPathSum = function (root, targetSum) {
 //     ? checkMatch -> return true
 //     : f(l) || f(r)
 //   :
-const isPathSumMatchTarget = (pathSum, root, target) => {
+const isPathSumMatchTarget = (
+  pathSum,
+  root,
+  target
+) => {
   if (!root) {
     return false;
   }
@@ -489,8 +510,16 @@ const isPathSumMatchTarget = (pathSum, root, target) => {
   pathSum += root.val;
 
   return (
-    isPathSumMatchTarget(pathSum, root.left, target) ||
-    isPathSumMatchTarget(pathSum, root.right, target)
+    isPathSumMatchTarget(
+      pathSum,
+      root.left,
+      target
+    ) ||
+    isPathSumMatchTarget(
+      pathSum,
+      root.right,
+      target
+    )
   );
 };
 
@@ -512,7 +541,9 @@ function all(iterable) {
   const orderedResolvedValues = [];
 
   return new Promise((res, rej) => {
-    let [stillPendingCount, currOrderedIdx] = [0, 0];
+    let [stillPendingCount, currOrderedIdx] = [
+      0, 0,
+    ];
     let currIter = iter.next();
 
     if (currIter.done) {
@@ -530,15 +561,22 @@ function all(iterable) {
       currIter = iter.next();
       stillPendingCount++;
 
-      if (!Promise.prototype.isPrototypeOf(currValue)) {
-        orderedResolvedValues[currOrderedIdx++] = currValue;
+      if (
+        !Promise.prototype.isPrototypeOf(
+          currValue
+        )
+      ) {
+        orderedResolvedValues[currOrderedIdx++] =
+          currValue;
         stillPendingCount--;
         continue;
       }
 
       currValue
         .then((val) => {
-          orderedResolvedValues[currOrderedIdx++] = val;
+          orderedResolvedValues[
+            currOrderedIdx++
+          ] = val;
           stillPendingCount--;
 
           if (stillPendingCount === 0) {
@@ -567,19 +605,23 @@ function all(iterable) {
 function debounce(
   func,
   wait,
-  { leading, trailing } = { leading: false, trailing: true }
+  { leading, trailing } = {
+    leading: false,
+    trailing: true,
+  }
 ) {
   let [timerId, setTimerId] = [
     null,
-    (id) => (timerId = id)
+    (id) => (timerId = id),
   ];
   let [prevArgs, setPrevArgs] = [
     null,
-    (...args) => (prevArgs = args.length ? args : null)
+    (...args) =>
+      (prevArgs = args.length ? args : null),
   ];
   let [isTimeout, toggleIsTimeout] = [
     leading,
-    () => (isTimeout = !isTimeout)
+    () => (isTimeout = !isTimeout),
   ];
 
   const setTimer = () => {
@@ -612,16 +654,19 @@ function debounce(
 function throttle(
   func,
   wait,
-  { leading, trailing } = { leading: true, trailing: true }
+  { leading, trailing } = {
+    leading: true,
+    trailing: true,
+  }
 ) {
   let [lastCallArgs, setPrevArgs] = [
     null,
-    (args) => (lastCallArgs = args)
+    (args) => (lastCallArgs = args),
   ];
 
   let [timerId, setTimerId] = [
     null,
-    (id) => (timerId = id)
+    (id) => (timerId = id),
   ];
 
   const setTimer = () => {
@@ -682,7 +727,9 @@ function frogJumpLongestDistence(blocks) {
 
     maxGap = Math.max(
       maxGap,
-      readDecreaseIdxToGap[currIdx] + fwdIncreaseGap + 1
+      readDecreaseIdxToGap[currIdx] +
+        fwdIncreaseGap +
+        1
     );
 
     currIdx++;
@@ -704,8 +751,10 @@ function frogJumpLongestDistence(blocks) {
  */
 function curry(fn) {
   const returned = (...args) => {
-    if (args.length >= fn.length) return fn(...args);
-    return (...args2) => returned(...args, ...args2);
+    if (args.length >= fn.length)
+      return fn(...args);
+    return (...args2) =>
+      returned(...args, ...args2);
   };
 
   return returned;
@@ -768,7 +817,8 @@ class EventEmitter {
     this.eventToHandlers = eventToHandlers;
 
     return {
-      release: () => this.eventToHandlers[eventName].pop()
+      release: () =>
+        this.eventToHandlers[eventName].pop(),
     };
   }
 
@@ -803,7 +853,9 @@ class NodeStore {
   }
 
   has(node) {
-    return this[node[this.storeKey]] !== undefined;
+    return (
+      this[node[this.storeKey]] !== undefined
+    );
   }
 }
 // const node = document.querySelector("#app");
@@ -836,9 +888,10 @@ function memo(func, cacheKeyCalculator) {
   return function (...args) {
     const cacheKey = cacheKeyCalculator
       ? cacheKeyCalculator.apply(this, args)
-      : args.join("-");
+      : args.join('-');
 
-    const cacheReturned = readcacheKeyToRetruned[cacheKey];
+    const cacheReturned =
+      readcacheKeyToRetruned[cacheKey];
     if (cacheReturned !== undefined) {
       return cacheReturned;
     }
@@ -904,7 +957,8 @@ function pipe(fns) {
 
   return (x) =>
     fns.reduce(
-      (accReturnedValue, fn) => fn(accReturnedValue),
+      (accReturnedValue, fn) =>
+        fn(accReturnedValue),
       x
     );
 }
@@ -920,8 +974,11 @@ function pipe(fns) {
  * @return {string}
  */
 function decode(message) {
-  if (message.length === 0 || message[0].length === 0) {
-    return "";
+  if (
+    message.length === 0 ||
+    message[0].length === 0
+  ) {
+    return '';
   }
 
   // ++
@@ -935,7 +992,7 @@ function decode(message) {
   const xCoordAction = () => xCoord++;
 
   let nextAction = [xCoordAction, downAction];
-  let resMessage = "";
+  let resMessage = '';
 
   for (
     let count = 1;
@@ -949,11 +1006,11 @@ function decode(message) {
     resMessage += message[yCoord][xCoord];
     if (yCoord === bottomY) {
       nextAction[1] = upAction;
-      console.log("going up");
+      console.log('going up');
     }
     if (yCoord === 0) {
       nextAction[1] = downAction;
-      console.log("going down");
+      console.log('going down');
     }
 
     nextAction[0]();
@@ -963,9 +1020,9 @@ function decode(message) {
   return resMessage;
 }
 const input = [
-  ["I", "B", "C", "A", "L", "K", "A"],
-  ["D", "R", "F", "C", "A", "E", "A"],
-  ["G", "H", "O", "E", "L", "A", "D"]
+  ['I', 'B', 'C', 'A', 'L', 'K', 'A'],
+  ['D', 'R', 'F', 'C', 'A', 'E', 'A'],
+  ['G', 'H', 'O', 'E', 'L', 'A', 'D'],
 ];
 // console.log(decode(input));
 
@@ -979,7 +1036,47 @@ function map(mapper, passedThis) {
       return acc;
     }
 
-    acc[idx] = mapper.call(passedThis, ele, idx, array);
+    acc[idx] = mapper.call(
+      passedThis,
+      ele,
+      idx,
+      array
+    );
     return acc;
   }, []);
 }
+
+/**
+ * Valid Parentheses
+ */
+function isValid(str) {
+  const rightParenthesesToLeft = {
+    ')': '(',
+    ']': '[',
+    '}': '{',
+  };
+
+  let tailOutLeft = [];
+  const peek = () =>
+    tailOutLeft[tailOutLeft.length - 1];
+
+  for (const char of str) {
+    const leftParenthesis =
+      rightParenthesesToLeft[char];
+
+    if (!leftParenthesis) {
+      tailOutLeft.push(char);
+      continue;
+    }
+
+    const tail = peek();
+    if (!(tail === leftParenthesis)) {
+      return false;
+    }
+
+    tailOutLeft.pop();
+  }
+
+  return tailOutLeft.length === 0;
+}
+// console.log("]")
