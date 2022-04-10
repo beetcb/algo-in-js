@@ -8,7 +8,7 @@ export function assertObEq(one, two) {
   console.log("success");
 }
 
-export function assertPremitive(one, two) {
+export function assertPremitiveEq(one, two) {
   const isEq = one === two;
   if (!isEq) {
     console.error(`${one} !== ${two}`);

@@ -2,15 +2,14 @@
  * @type {import('vite').UserConfig}
  */
 const config = () => {
-  console.log(process.env.CODESANDBOX_SSE);
   if (process.env.CODESANDBOX_SSE) {
     return {
-      logLevel: 'silent',
+      logLevel: "silent",
       server: {
         hmr: {
-          clientPort: 443,
-        },
-      },
+          clientPort: 443
+        }
+      }
     };
   }
 
