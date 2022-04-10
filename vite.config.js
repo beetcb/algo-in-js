@@ -4,16 +4,18 @@
 const config = () => {
   if (process.env.CODESANDBOX_SSE) {
     return {
-      logLevel: "silent",
+      logLevel: 'silent',
       server: {
         hmr: {
-          clientPort: 443
-        }
-      }
+          clientPort: 443,
+        },
+      },
     };
   }
 
-  return {};
+  return {
+    logLevel: 'silent',
+  };
 };
 
 export default config;

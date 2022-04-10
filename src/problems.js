@@ -1080,3 +1080,88 @@ function isValid(str) {
   return tailOutLeft.length === 0;
 }
 // console.log("]")
+
+/**
+ * A pure math problem about `digit root`
+ */
+function addDigits(num) {
+  if (num < 10) {
+    return num;
+  }
+  return 1 + ((num - 1) % (10 - 1));
+}
+
+/**
+ * Add big number represented by string
+ */
+function addStrings(str1, str2) {
+  let [charBwdIdx1, charBwdIdx2] = [
+    str1.length - 1,
+    str2.length - 1,
+  ];
+
+  let carry = 0;
+  let resStr = '';
+  while (charBwdIdx1 >= 0 || charBwdIdx2 >= 0) {
+    const sum =
+      carry +
+      Number(str1[charBwdIdx1] ?? 0) +
+      Number(str2[charBwdIdx2] ?? 0);
+
+    resStr = (sum % 10).toString() + resStr;
+    carry = sum > 9 ? 1 : 0;
+
+    charBwdIdx2--;
+    charBwdIdx1--;
+  }
+  if (carry) {
+    return '1' + resStr;
+  }
+
+  return resStr;
+}
+
+/**
+ * Reverse string (k)
+ * 01xx45,2
+ * 10xx54
+ */
+function reverseStr(string, gap) {
+  if (gap <= 1) {
+    return string;
+  }
+
+  let currStartIdx = 0;
+  let resString = [...string];
+
+  while (currStartIdx < string.length) {
+    reverseK(
+      resString,
+      currStartIdx,
+      currStartIdx + gap - 1
+    );
+    currStartIdx += 2 * gap;
+  }
+
+  function reverseK(str, start, end) {
+    if (end >= str.length) {
+      end = str.length - 1;
+    }
+
+    let [leftFwdIdx, rightBwdIdx] = [start, end];
+    while (leftFwdIdx < rightBwdIdx) {
+      [str[leftFwdIdx], str[rightBwdIdx]] = [
+        str[rightBwdIdx],
+        str[leftFwdIdx],
+      ];
+      leftFwdIdx++;
+      rightBwdIdx--;
+    }
+  }
+
+  return resString.join('');
+}
+// tests.assertPremitiveEq(
+//   reverseStr('abcdefg', 8),
+//   'gfedcba'
+// );
