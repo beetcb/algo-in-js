@@ -2,6 +2,7 @@
   "name": "algo-in-js",
   "version": "1.0.0",
   "description": "",
+  "type": "module",
   "main": "index.html",
   "scripts": {
     "start": "vite --host",

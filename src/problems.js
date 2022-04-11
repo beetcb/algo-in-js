@@ -2,7 +2,9 @@ import * as tests from './tests';
 
 /**
  * Impl Array.prototype.flat()
- * @param {*} array
+ * @algo
+ *  dfs traverse, use `pointer` or `concat` to push flatted arr
+ * @param {Array<number>} array
  */
 function flatten(array) {
   if (
@@ -23,16 +25,11 @@ function flatten(array) {
   }
   return res;
 }
-// tests.assertObEq(flatten([1, 2, 3, [4, 5, [6, 7], 8]]), [
-//   1,
-//   2,
-//   3,
-//   4,
-//   5,
-//   6,
-//   7,
-//   8
-// ]);
+// --------------test--------------
+tests.assertObEq(
+  flatten([1, 2, 3, [4, 5, [6, 7], 8]]),
+  [1, 2, 3, 4, 5, 6, 7, 8]
+);
 
 /**
  * Binary Search
@@ -94,11 +91,12 @@ function binarySearch(array, target) {
     return end;
   }
 }
-// tests.assertPremitive(binarySearch([1, 2], 2), 1);
-// tests.assertPremitive(binarySearch([1, 3], 3), 1);
-// tests.assertPremitive(binarySearch([1, 3], 1), 0);
-// tests.assertPremitive(binarySearch([1], 1), 0);
-// tests.assertPremitive(binarySearch([], 3), -1);
+// --------------test--------------
+tests.assertPremitive(binarySearch([1, 2], 2), 1);
+tests.assertPremitive(binarySearch([1, 3], 3), 1);
+tests.assertPremitive(binarySearch([1, 3], 1), 0);
+tests.assertPremitive(binarySearch([1], 1), 0);
+tests.assertPremitive(binarySearch([], 3), -1);
 
 /**
  * Fibonacii array
@@ -262,19 +260,13 @@ var dailyTemperatures = function (temperatures) {
 
   return resNums;
 };
-
-// tests.assertObEq(dailyTemperatures([89, 62, 70, 58, 47, 47, 46, 76, 100, 70]), [
-//   8,
-//   1,
-//   5,
-//   4,
-//   3,
-//   2,
-//   1,
-//   1,
-//   0,
-//   0
-// ]);
+// --------------test--------------
+tests.assertObEq(
+  dailyTemperatures([
+    89, 62, 70, 58, 47, 47, 46, 76, 100, 70,
+  ]),
+  [8, 1, 5, 4, 3, 2, 1, 1, 0, 0]
+);
 
 /**
  * @param {character[]} s
@@ -298,14 +290,11 @@ var reverseString = function (s) {
 
   return s;
 };
-
-// tests.assertObEq(reverseString(["h", "e", "l", "l", "o"]), [
-//   "o",
-//   "l",
-//   "l",
-//   "e",
-//   "h"
-// ]);
+// --------------test--------------
+tests.assertObEq(
+  reverseString(['h', 'e', 'l', 'l', 'o']),
+  ['o', 'l', 'l', 'e', 'h']
+);
 
 /**
  * @param {string} s
@@ -346,8 +335,11 @@ var isAnagram = function (s, t) {
 
   return isAnagram;
 };
-
-// tests.assertObEq(isAnagram("anagram", "nagaram"), true);
+// --------------test--------------
+tests.assertEq(
+  isAnagram('anagram', 'nagaram'),
+  true
+);
 
 /**
  * @param {ListNode} head
@@ -587,15 +579,18 @@ function all(iterable) {
     }
   });
 }
-// all([
-//   new Promise((res) => setTimeout(res, 1, 1)),
-//   Promise.resolve(2),
-//   Promise.reject(1)
-// ])
-//   .then(console.log)
-//   .catch(console.error)
-// all([1, 2, 3, Promise.resolve(4)]).then(console.log);
-// all([]).then(console.log);
+// --------------test--------------
+all([
+  new Promise((res) => setTimeout(res, 1, 1)),
+  Promise.resolve(2),
+  Promise.reject(1),
+])
+  .then(console.log)
+  .catch(console.error);
+all([1, 2, 3, Promise.resolve(4)]).then(
+  console.log
+);
+all([]).then(console.log);
 
 /**
  * @param func
@@ -611,17 +606,12 @@ function debounce(
   }
 ) {
   let [timerId, setTimerId] = [
-    null,
+    ,
     (id) => (timerId = id),
   ];
   let [prevArgs, setPrevArgs] = [
-    null,
-    (...args) =>
-      (prevArgs = args.length ? args : null),
-  ];
-  let [isTimeout, toggleIsTimeout] = [
-    leading,
-    () => (isTimeout = !isTimeout),
+    ,
+    (args) => (prevArgs = args),
   ];
 
   const setTimer = () => {
@@ -629,14 +619,14 @@ function debounce(
       func.apply(this, prevArgs);
     }
 
-    toggleIsTimeout();
+    setTimerId();
     setPrevArgs();
   };
 
   return (...args) => {
-    if (leading && isTimeout) {
+    if (leading && !timerId) {
       func.apply(this, args);
-      toggleIsTimeout();
+      setTimerId(1);
     } else {
       setPrevArgs(args);
     }
@@ -659,19 +649,19 @@ function throttle(
     trailing: true,
   }
 ) {
-  let [lastCallArgs, setPrevArgs] = [
-    null,
-    (args) => (lastCallArgs = args),
+  let [prevArgs, setPrevArgs] = [
+    ,
+    (args) => (prevArgs = args),
   ];
 
   let [timerId, setTimerId] = [
-    null,
+    ,
     (id) => (timerId = id),
   ];
 
   const setTimer = () => {
-    if (lastCallArgs && trailing) {
-      func.apply(this, lastCallArgs);
+    if (prevArgs && trailing) {
+      func.apply(this, prevArgs);
       setPrevArgs();
       setTimerId(setTimeout(setTimer, wait));
     } else {
@@ -734,16 +724,16 @@ function frogJumpLongestDistence(blocks) {
 
     currIdx++;
   }
-
-  console.log(readDecreaseIdxToGap);
-  return maxGap;
 }
-
-// tests.assertObEq(frogJumpLongestDistence([2, 6, 8, 5]), 3);
-// tests.assertObEq(
-//   frogJumpLongestDistence([1, 5, 5, 2, 6]),
-//   4
-// );
+// --------------test--------------
+tests.assertEq(
+  frogJumpLongestDistence([2, 6, 8, 5]),
+  3
+);
+tests.assertEq(
+  frogJumpLongestDistence([1, 5, 5, 2, 6]),
+  4
+);
 
 /**
  * @param { (...args: any[]) => any } fn
@@ -759,16 +749,6 @@ function curry(fn) {
 
   return returned;
 }
-
-const curriedJoin = curry((a, b, c) => {
-  return `${a}_${b}_${c}`;
-});
-
-// console.log(curriedJoin(1, 2, 3)); // '1_2_3'
-// console.log(curriedJoin(1)(2, 3)); // '1_2_3'
-// console.log(curriedJoin(1, 2)(3)); // '1_2_3'
-// console.log(curriedJoin(1, 2, 3, 4)); // '1_2_3'
-// console.log(curriedJoin(1)(2)(3)); // '1_2_3'
 
 /**
  * @param { Array } arr
@@ -795,7 +775,6 @@ function flat(arr, depth = 1) {
 
   return flattedArr;
 }
-// console.log(flat([1, 2, [3, 4, [2, 3]]], 3));
 
 /**
  * Impl EventEmitter
@@ -858,12 +837,13 @@ class NodeStore {
     );
   }
 }
-// const node = document.querySelector("#app");
-// const nodeStore = new NodeStore();
-// nodeStore.set(node, "hello");
-// console.assert(nodeStore.get(node) === "hello");
-// nodeStore.set(node, "A");
-// console.assert(nodeStore.get(node) === "A");
+// --------------test--------------
+const node = document.querySelector('#app');
+const nodeStore = new NodeStore();
+nodeStore.set(node, 'hello');
+tests.assertEq(nodeStore.get(node), 'hello');
+nodeStore.set(node, 'A');
+tests.assertEq(nodeStore.get(node), 'A');
 
 /**
  * Impl clearAllTimeout()
@@ -902,16 +882,14 @@ function memo(func, cacheKeyCalculator) {
     return returned;
   };
 }
-// const func = (arg1, arg2) => {
-//   return arg1 + arg2;
-// };
-// const memoed = memo(func, () => "samekey");
-// memoed(1, 2);
-// 3, func is called, 3 is cached with key 'samekey'
-// memoed(1, 2);
-// 3, since key is the same, 3 is returned without calling func
-// memoed(1, 3);
-// 3, since key is the same, 3 is returned without calling func
+// --------------test--------------
+const func = (arg1, arg2) => {
+  return arg1 + arg2;
+};
+const memoed = memo(func, () => 'samekey');
+tests.assertEq(memoed(1, 2), 3);
+tests.assertEq(memoed(1, 2), 3);
+tests.assertEq(memoed(1, 3), 3);
 
 /**
  * Calculate height of a DOM tree
@@ -934,17 +912,18 @@ function getHeight(node) {
 
   return maxHeight;
 }
-// const div = document.createElement("div");
-// div.innerHTML = `
-// <div>
-//   <p>
-//     <button>Hello</button>
-//   </p>
-// </div>
-// <p>
-//   <span>World!</span>
-// </p>`;
-// console.log(getHeight(div));
+// --------------test--------------
+const div = document.createElement('div');
+div.innerHTML = `
+<div>
+  <p>
+    <button>Hello</button>
+  </p>
+</div>
+<p>
+  <span>World!</span>
+</p>`;
+tests.assertEq(getHeight(div), 3);
 
 /**
  * Excute fn with accumulate returnedValue
@@ -962,9 +941,6 @@ function pipe(fns) {
       x
     );
 }
-// const times = (y) => (x) => x * y;
-// const composition = pipe([times(2), times(3)]);
-// console.log(composition(4));
 
 /**
  * . . . . . .
@@ -1019,12 +995,6 @@ function decode(message) {
 
   return resMessage;
 }
-const input = [
-  ['I', 'B', 'C', 'A', 'L', 'K', 'A'],
-  ['D', 'R', 'F', 'C', 'A', 'E', 'A'],
-  ['G', 'H', 'O', 'E', 'L', 'A', 'D'],
-];
-// console.log(decode(input));
 
 /**
  * Impl Array.prototype.map
@@ -1079,7 +1049,6 @@ function isValid(str) {
 
   return tailOutLeft.length === 0;
 }
-// console.log("]")
 
 /**
  * A pure math problem about `digit root`
@@ -1161,7 +1130,159 @@ function reverseStr(string, gap) {
 
   return resString.join('');
 }
-// tests.assertPremitiveEq(
-//   reverseStr('abcdefg', 8),
-//   'gfedcba'
-// );
+// --------------test--------------
+tests.assertEq(
+  reverseStr('abcdefg', 8),
+  'gfedcba'
+);
+
+/**
+ * Longest Palindrome
+ * dcc($odd)ccd
+ * a:1 x 
+   b:1 x
+   c:4
+   d:2
+   e:3 
+ * @perf use set will be faster 
+*/
+function longestPalindrome(string) {
+  if (string.length === 1) {
+    return 1;
+  }
+
+  // b:2 -> 2
+  // a:1
+  // b:1 -> 0
+  if (string.length === 2) {
+    if (string[0] === string[1]) {
+      return 2;
+    }
+    return 1;
+  }
+
+  const readCharToCount = {};
+  for (const char of string) {
+    if (!readCharToCount[char]) {
+      readCharToCount[char] = 1;
+      continue;
+    }
+
+    readCharToCount[char]++;
+  }
+
+  let oddCount = 0;
+  let resCount = 0;
+  let hasSingleChar = false;
+
+  for (const count of Object.values(
+    readCharToCount
+  )) {
+    if (count % 2 === 1) {
+      hasSingleChar = true;
+      oddCount += count - 1;
+      continue;
+    }
+
+    resCount += count;
+  }
+
+  return (
+    resCount + oddCount + (hasSingleChar ? 1 : 0)
+  );
+}
+// --------------test--------------
+tests.assertEq(longestPalindrome('aaaccb'), 5);
+tests.assertEq(longestPalindrome('aaacccb'), 5);
+tests.assertEq(longestPalindrome('abccccdd'), 7);
+tests.assertEq(longestPalindrome('a'), 1);
+tests.assertEq(longestPalindrome('ab'), 1);
+tests.assertEq(longestPalindrome('aa'), 2);
+tests.assertEq(longestPalindrome('bananas'), 5);
+
+/**
+ * Network request: timeout -> cancel request
+ * @returns
+ */
+async function fetchTimeout(
+  url,
+  timeout,
+  { signal, ...options } = {}
+) {
+  if (!timeout) {
+    throw new TypeError(
+      'timeout must be specified'
+    );
+  }
+  console.info(
+    'Fetching with timeout ' + timeout
+  );
+
+  const controller = new AbortController();
+  const promise = fetch(url, {
+    signal: controller.signal,
+    ...options,
+  });
+  const timeoutId = setTimeout(
+    () => controller.abort(),
+    timeout
+  );
+
+  if (signal) {
+    signal.addEventListener('abort', () =>
+      controller.abort()
+    );
+  }
+
+  return promise.finally(() =>
+    clearTimeout(timeoutId)
+  );
+}
+// --------------test--------------
+const recordFetchTimeLabel =
+  'Fetching time consumed';
+console.time(recordFetchTimeLabel);
+fetchTimeout('http://vm.local:3001/hello', 10000)
+  .then(console.log)
+  .catch(console.error)
+  .finally(() =>
+    console.timeEnd(recordFetchTimeLabel)
+  );
+
+async function fetchRetry(
+  url,
+  retryLimit,
+  { ...options } = {}
+) {
+  if (!Number.isInteger(retryLimit)) {
+    throw new TypeError(
+      'retryLimit must be a integer'
+    );
+  }
+
+  const promise = fetch(url, options);
+
+  return promise.catch((err) => {
+    if (retryLimit > 0) {
+      const leftRetryLimit = retryLimit - 1;
+      console.info(
+        'Fetch failed, retrying, left retry times = ' +
+          retryLimit
+      );
+      return fetchRetry(
+        url,
+        leftRetryLimit,
+        options
+      );
+    }
+
+    console.info(
+      'Fetch failed, reatch retrying limit, aborting request'
+    );
+    return err;
+  });
+}
+
+fetchRetry('http://vm.local:3001/hello', 5)
+  .then(console.log)
+  .catch(console.err);
