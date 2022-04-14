@@ -1286,3 +1286,233 @@ async function fetchRetry(
 fetchRetry('http://vm.local:3001/hello', 5)
   .then(console.log)
   .catch(console.err);
+
+/**
+ * Permutations
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+function permute(nums) {
+  const permuteRec = (
+    permutations,
+    tempNumToExis,
+    depth
+  ) => {
+    if (depth === nums.length) {
+      permutations.push(
+        Array.from(tempNumToExis)
+      );
+    }
+
+    for (const num of nums) {
+      if (tempNumToExis.has(num)) {
+        continue;
+      }
+      tempNumToExis.add(num);
+      permuteRec(
+        permutations,
+        tempNumToExis,
+        depth + 1
+      );
+      tempNumToExis.delete(num);
+    }
+
+    return permutations;
+  };
+
+  return permuteRec([], new Set(), 0);
+}
+
+/**
+ * !TODO: solve this
+ * Find longestDupSubstring
+ * banana[idx1]
+ * banana[idx2]
+ * @algo
+ * idx2 > idx1
+ * f(idx1, idx2)=>s[idx1] === s[idx2]
+ *  ? f(idx1-1, idx2-1)
+ *  : maxlenString(
+ *      f(idx-1, idx2)
+ *      f(idx1, idx2 - 1) wrong, makes idx2 <= idx1
+ *    )
+ * @param {string} s
+ * @return {string}
+ */
+function longestDupSubstring(s) {
+  const longestSubStringRec = (
+    memoIdxAndIdx,
+    idx1,
+    idx2
+  ) => {
+    if (idx1 < 0) {
+      return '';
+    }
+    if (idx1 === 0) {
+      if (s[idx1] === s[idx2]) {
+        return s[idx1];
+      }
+      return '';
+    }
+
+    const [val1, val2] = [s[idx1], s[idx2]];
+    if (val1 === val2) {
+      if (
+        memoIdxAndIdx[idx1 - 1][idx2 - 1] !== ''
+      ) {
+        return memoIdxAndIdx[idx1 - 1][idx2 - 1];
+      }
+
+      const currLongestSubString =
+        longestSubStringRec(
+          memoIdxAndIdx,
+          idx1 - 1,
+          idx2 - 1
+        ) + val1;
+      memoIdxAndIdx[idx1][idx2] =
+        currLongestSubString;
+      return currLongestSubString;
+    }
+
+    return longestSubStringRec(
+      memoIdxAndIdx,
+      idx1 - 1,
+      idx2
+    );
+  };
+
+  return longestSubStringRec(
+    Array(s.length).fill(
+      Array(s.length).fill('')
+    ),
+    s.length - 2,
+    s.length - 1
+  );
+}
+
+console.log(longestDupSubstring('banana'));
+console.log(longestDupSubstring('abcd'));
+console.log(longestDupSubstring('cccc'));
+console.log(longestDupSubstring('acccccdffff'));
+console.log(
+  longestDupSubstring(
+    'nnpxouomcofdjuujloanjimymadkuepightrfodmauhrsy'
+  )
+);
+
+/**
+ * Impl an vdom virtualizer and render
+ */
+class VirtualDOMHelper {
+  constructor(hNode) {}
+
+  /**
+   * f(root) => newVNode;for r of root {newVNode.push(f(r))};retrun newVNode
+   */
+  virtualize(hNode) {
+    const nodeIter = (root) => {
+      const vRoot = {
+        type: root.tagName.toLowerCase(),
+        props: {},
+      };
+
+      if (root.hasAttributes()) {
+        for (const {
+          name,
+          value,
+        } of root.attributes) {
+          vRoot.props[
+            name === 'class' ? 'className' : name
+          ] = value;
+        }
+      }
+
+      // set children text
+      if (root.children.length === 0) {
+        vRoot.props.children = root.textContent;
+        return vRoot;
+      }
+
+      vRoot.props.children = [];
+      for (const child of root.childNodes) {
+        if (child.nodeType === 3) {
+          vRoot.props.children.push(
+            child.textContent
+          );
+          continue;
+        }
+
+        vRoot.props.children.push(
+          nodeIter(child)
+        );
+      }
+
+      return vRoot;
+    };
+
+    return nodeIter(hNode, {});
+  }
+
+  /**
+   * @typedef {{type: string, props: {children: any[], className: string}} VNode
+   */
+  /**
+   * @param } valid object literal presentation
+   * @return {HTMLElement}
+   */
+  render(obj) {
+    /**
+     * @param {VNode} vNode
+     */
+    const vNodeIter = (vNode) => {
+      const { type, props } = vNode;
+      const hNode = document.createElement(type);
+
+      for (const [name, value] of Object.entries(
+        props
+      )) {
+        if (name === 'children') {
+          // will be handled separately
+          continue;
+        }
+
+        hNode.setAttribute(
+          name === 'className' ? 'class' : name,
+          value
+        );
+      }
+
+      if (!Array.isArray(props.children)) {
+        hNode.textContent = props.children;
+        return hNode;
+      }
+
+      for (const child of props.children) {
+        if (typeof child === 'string') {
+          hNode.append(
+            document.createTextNode(child)
+          );
+          continue;
+        }
+
+        hNode.appendChild(vNodeIter(child));
+      }
+
+      return hNode;
+    };
+
+    return vNodeIter(obj);
+  }
+}
+
+const vdomHelper = new VirtualDOMHelper();
+const testNode = document.createElement('div');
+testNode.innerHTML = `<h1> this is </h1><p class="paragraph"> a <button> button </button> from <a href="https://bfe.dev"><b>BFE</b>.dev</a></p>`;
+console.log(vdomHelper.virtualize(testNode));
+document
+  .querySelector('#app')
+  .append(
+    vdomHelper.render(
+      vdomHelper.virtualize(testNode)
+    )
+  );
