@@ -1288,119 +1288,6 @@ fetchRetry('http://vm.local:3001/hello', 5)
   .catch(console.err);
 
 /**
- * Permutations
- * @param {number[]} nums
- * @return {number[][]}
- */
-function permute(nums) {
-  const permuteRec = (
-    permutations,
-    tempNumToExis,
-    depth
-  ) => {
-    if (depth === nums.length) {
-      permutations.push(
-        Array.from(tempNumToExis)
-      );
-    }
-
-    for (const num of nums) {
-      if (tempNumToExis.has(num)) {
-        continue;
-      }
-      tempNumToExis.add(num);
-      permuteRec(
-        permutations,
-        tempNumToExis,
-        depth + 1
-      );
-      tempNumToExis.delete(num);
-    }
-
-    return permutations;
-  };
-
-  return permuteRec([], new Set(), 0);
-}
-
-/**
- * !TODO: solve this
- * Find longestDupSubstring
- * banana[idx1]
- * banana[idx2]
- * @algo
- * idx2 > idx1
- * f(idx1, idx2)=>s[idx1] === s[idx2]
- *  ? f(idx1-1, idx2-1)
- *  : maxlenString(
- *      f(idx-1, idx2)
- *      f(idx1, idx2 - 1) wrong, makes idx2 <= idx1
- *    )
- * @param {string} s
- * @return {string}
- */
-function longestDupSubstring(s) {
-  const longestSubStringRec = (
-    memoIdxAndIdx,
-    idx1,
-    idx2
-  ) => {
-    if (idx1 < 0) {
-      return '';
-    }
-    if (idx1 === 0) {
-      if (s[idx1] === s[idx2]) {
-        return s[idx1];
-      }
-      return '';
-    }
-
-    const [val1, val2] = [s[idx1], s[idx2]];
-    if (val1 === val2) {
-      if (
-        memoIdxAndIdx[idx1 - 1][idx2 - 1] !== ''
-      ) {
-        return memoIdxAndIdx[idx1 - 1][idx2 - 1];
-      }
-
-      const currLongestSubString =
-        longestSubStringRec(
-          memoIdxAndIdx,
-          idx1 - 1,
-          idx2 - 1
-        ) + val1;
-      memoIdxAndIdx[idx1][idx2] =
-        currLongestSubString;
-      return currLongestSubString;
-    }
-
-    return longestSubStringRec(
-      memoIdxAndIdx,
-      idx1 - 1,
-      idx2
-    );
-  };
-
-  return longestSubStringRec(
-    Array(s.length).fill(
-      Array(s.length).fill('')
-    ),
-    s.length - 2,
-    s.length - 1
-  );
-}
-
-console.log(longestDupSubstring('banana'));
-console.log(longestDupSubstring('abcd'));
-console.log(longestDupSubstring('cccc'));
-console.log(longestDupSubstring('acccccdffff'));
-console.log(
-  longestDupSubstring(
-    'nnpxouomcofdjuujloanjimymadkuepightrfodmauhrsy'
-  )
-);
-
-/**
  * Impl an vdom virtualizer and render
  */
 class VirtualDOMHelper {
@@ -1516,3 +1403,195 @@ document
       vdomHelper.virtualize(testNode)
     )
   );
+
+/**
+ * Permutations
+ * @param {number[]} nums
+ * @return {number[][]}
+ */
+function permute(nums) {
+  const permuteRec = (
+    permutations,
+    tempNumToExis,
+    depth
+  ) => {
+    if (depth === nums.length) {
+      permutations.push(
+        Array.from(tempNumToExis)
+      );
+    }
+
+    for (const num of nums) {
+      if (tempNumToExis.has(num)) {
+        continue;
+      }
+      tempNumToExis.add(num);
+      permuteRec(
+        permutations,
+        tempNumToExis,
+        depth + 1
+      );
+      tempNumToExis.delete(num);
+    }
+
+    return permutations;
+  };
+
+  return permuteRec([], new Set(), 0);
+}
+
+/**
+ * Find longestDupSubstring, dp memo, purely learning impl without rolling hash
+ * @algo
+ * idx2 > idx1
+ * f(idx1, idx2) =>
+ *  s[idx1] === s[idx2]
+ *  ? f(idx1-1, idx2-1) + s[idx1];
+ *  : f(idx1-1, idx2); f(idx1-1, idx2-1);
+ * @param {string} s
+ * @return {string}
+ */
+function longestDupSubstringBad(s) {
+  let [maxSubStr, setMaxSubStr] = [
+    '',
+    (str) => (maxSubStr = str),
+  ];
+
+  const longestSubStringRec = (
+    memo,
+    idx1,
+    idx2
+  ) => {
+    if (idx1 < 0) {
+      return;
+    }
+    if (idx1 === 0) {
+      if (s[idx1] === s[idx2]) {
+        if (maxSubStr.length < 1) {
+          setMaxSubStr(s[idx1]);
+        }
+        memo[idx1][idx2] = s[idx1];
+        return memo[idx1][idx2];
+      }
+      memo[idx1][idx2] = '';
+      return memo[idx1][idx2];
+    }
+
+    const [val1, val2] = [s[idx1], s[idx2]];
+
+    if (memo[idx1][idx2] !== null) {
+      return memo[idx1][idx2];
+    }
+
+    if (val1 === val2) {
+      const prevLongestSubStr =
+        longestSubStringRec(
+          memo,
+          idx1 - 1,
+          idx2 - 1,
+          maxSubStr
+        ) + val1;
+      memo[idx1][idx2] = prevLongestSubStr;
+      setMaxSubStr(
+        prevLongestSubStr.length >
+          maxSubStr.length
+          ? prevLongestSubStr
+          : maxSubStr
+      );
+      return memo[idx1][idx2];
+    }
+
+    longestSubStringRec(memo, idx1 - 1, idx2);
+
+    longestSubStringRec(memo, idx1 - 1, idx2 - 1);
+
+    memo[idx1][idx2] = '';
+    return memo[idx1][idx2];
+  };
+
+  const memo = Array(s.length)
+    .fill()
+    .map(() => Array(s.length).fill(null));
+
+  longestSubStringRec(
+    memo,
+    s.length - 2,
+    s.length - 1
+  );
+
+  return maxSubStr;
+}
+tests.assertEq(
+  longestDupSubstringBad(
+    'nnpxouomcofdjuujloanjimymadkuepightrfodmauhrsy'
+  ),
+  'ma'
+);
+tests.assertEq(
+  longestDupSubstringBad('baba'),
+  'ba'
+);
+
+/**
+ * Find longestDupSubstring, dp tabu, purely learning impl without rolling hash
+ * @algo
+ * idx2 > idx1
+ * f(idx1, idx2) =>
+ *  s[idx1] === s[idx2]
+ *  ? s[idx1-1, idx2-1] + s[idx1];
+ * @param {string} s
+ * @return {string}
+ */
+function longestDupSubstring(s) {
+  let [maxSubStr, setMaxSubStr] = [
+    '',
+    (str) => (maxSubStr = str),
+  ];
+
+  const longestSubStringRec = (tabu) => {
+    if (s.length <= 1) {
+      return '';
+    }
+
+    for (
+      let idx1 = 0;
+      idx1 < s.length - 1;
+      idx1++
+    ) {
+      for (
+        let idx2 = idx1 + 1;
+        idx2 < s.length;
+        idx2++
+      ) {
+        tabu[idx1][idx2] =
+          s[idx1] === s[idx2]
+            ? idx1 !== 0
+              ? tabu[idx1 - 1][idx2 - 1] + s[idx1]
+              : s[idx1]
+            : '';
+
+        const currSubStr = tabu[idx1][idx2];
+
+        if (
+          currSubStr.length > maxSubStr.length
+        ) {
+          setMaxSubStr(currSubStr);
+        }
+      }
+    }
+  };
+
+  const tabu = Array(s.length)
+    .fill()
+    .map(() => Array(s.length).fill(''));
+  longestSubStringRec(tabu);
+
+  return maxSubStr;
+}
+tests.assertEq(
+  longestDupSubstring(
+    'nnpxouomcofdjuujloanjimymadkuepightrfodmauhrsy'
+  ),
+  'ma'
+);
+tests.assertEq(longestDupSubstring('baba'), 'ba');
