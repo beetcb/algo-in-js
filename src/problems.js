@@ -1595,3 +1595,37 @@ tests.assertEq(
   'ma'
 );
 tests.assertEq(longestDupSubstring('baba'), 'ba');
+
+/**
+ * @param {any[]} arr
+ */
+function shuffle(arr) {
+  // Fisher-Yates
+  arr.forEach((_, idx) => {
+    const randIdx = Math.floor(
+      Math.random() * (idx + 1)
+    );
+
+    [arr[randIdx], arr[idx]] = [
+      arr[idx],
+      arr[randIdx],
+    ];
+  });
+
+  return arr;
+}
+console.log(shuffle([1, 2, 3, 4]));
+console.log(shuffle([1, 2, 3, 4]));
+console.log(shuffle([1, 2, 3, 4]));
+console.log(shuffle([1, 2, 3, 4]));
+console.log(shuffle([1, 2, 3, 4]));
+console.log(shuffle([1, 2, 3, 4]));
+
+/**
+ * @param {number} num
+ */
+function sum(num) {
+  const func = (n) => (n ? sum(num + n) : num);
+  func.valueOf = () => num; // A trick to make == magics happens
+  return func;
+}
