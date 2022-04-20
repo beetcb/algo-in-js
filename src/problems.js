@@ -1629,3 +1629,133 @@ function sum(num) {
   func.valueOf = () => num; // A trick to make == magics happens
   return func;
 }
+
+/**
+ * @param {string[]} strs
+ * @return {string}
+ */
+function longestCommonPrefix(strs) {
+  let resLongestCommonIdx = Math.min();
+
+  for (
+    let strIdx = 1;
+    strIdx < strs.length;
+    strIdx++
+  ) {
+    if (strs.length == 0) return '';
+    const [prevStr, currStr] = [
+      strs[strIdx - 1],
+      strs[strIdx],
+    ];
+    let commonIdx = 0;
+    while (
+      commonIdx < prevStr.length &&
+      commonIdx < currStr.length &&
+      commonIdx < resLongestCommonIdx
+    ) {
+      if (
+        prevStr[commonIdx] !== currStr[commonIdx]
+      ) {
+        break;
+      }
+      commonIdx++;
+    }
+
+    resLongestCommonIdx = Math.min(
+      resLongestCommonIdx,
+      commonIdx
+    );
+  }
+
+  return strs[0].substring(
+    0,
+    resLongestCommonIdx
+  );
+}
+
+test('works', () => {
+  expect(
+    longestCommonPrefix([
+      'flower',
+      'flow',
+      'flight',
+    ])
+  ).toBe('fl');
+
+  expect(
+    longestCommonPrefix(['dog', 'racecar', 'car'])
+  ).toBe('');
+
+  expect(
+    longestCommonPrefix(['ccc', 'ccc', 'ccc'])
+  ).toBe('ccc');
+});
+
+/**
+ * @algo aab aba
+ *   loop through the elements od s
+ *
+ *     if repeated, update the leftFwdIdx
+ *     find gap, update maxGap
+ *   return maxGap
+ *
+ * @param {string} s
+ * @return {number}
+ */
+function lengthOfLongestSubstring(s) {
+  if (s.length <= 1) {
+    return s.length;
+  }
+
+  let charToNearIdx = {};
+  let maxGap = 1;
+  let leftFwdIdx = 0;
+  let charIdx = -1;
+  for (const char of s) {
+    charIdx++;
+    if (
+      charToNearIdx[char] !== undefined &&
+      charToNearIdx[char] >= leftFwdIdx
+    ) {
+      leftFwdIdx = charToNearIdx[char] + 1;
+    }
+    charToNearIdx[char] = charIdx;
+
+    const gap = charIdx - leftFwdIdx + 1;
+    if (gap > maxGap) {
+      maxGap = gap;
+    }
+  }
+
+  return maxGap;
+}
+
+test('works 0', () => {
+  expect(lengthOfLongestSubstring('cccc')).toBe(
+    1
+  );
+});
+test('works 1', () => {
+  expect(lengthOfLongestSubstring('pwwkew')).toBe(
+    3
+  );
+});
+test('works 2', () => {
+  expect(lengthOfLongestSubstring('   ')).toBe(1);
+});
+test('works 3', () => {
+  expect(lengthOfLongestSubstring('abc')).toBe(3);
+});
+test('works 4', () => {
+  expect(lengthOfLongestSubstring('aab')).toBe(2);
+});
+test('works 5', () => {
+  expect(
+    lengthOfLongestSubstring('abcabcbb')
+  ).toBe(3);
+});
+test('works 5', () => {
+  expect(lengthOfLongestSubstring('abba')).toBe(
+    2
+  );
+});
