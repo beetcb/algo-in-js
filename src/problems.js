@@ -1759,3 +1759,193 @@ test('works 5', () => {
     2
   );
 });
+
+/**
+ * @algo
+ *   f(idx1, idx2) = isEqual
+ *     ? f(idx1-1,idx2-1)+1
+ *     : 0
+ *
+ *     f(3,3) = false -> max(f(2,3), f(3,2))
+ *
+ *   1 2 3 2
+ *         idx1
+ *   3 2 4 7
+ *         idx2
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @return {number}
+ */
+function findLength(nums1, nums2) {
+  let readIdxToRes = Array(nums1.length)
+    .fill(null)
+    .map((_) => Array(nums2.length).fill(0));
+  let max = Math.max();
+
+  for (
+    let idx1 = 0;
+    idx1 < nums1.length;
+    idx1++
+  ) {
+    for (
+      let idx2 = 0;
+      idx2 < nums2.length;
+      idx2++
+    ) {
+      if (nums1[idx1] === nums2[idx2]) {
+        readIdxToRes[idx1][idx2] =
+          (readIdxToRes[idx1 - 1]?.[idx2 - 1] ??
+            0) + 1;
+      } else {
+        // readIdxToRes[idx1][idx2] = Math.max(
+        //   readIdxToRes[idx1 - 1]?.[idx2] ?? 0,
+        //   readIdxToRes[idx1]?.[idx2 - 1] ?? 0
+        // );
+      }
+
+      max = Math.max(
+        max,
+        readIdxToRes[idx1][idx2]
+      );
+    }
+  }
+
+  return max;
+}
+
+[
+  [
+    [
+      [0, 0, 0, 0, 0],
+      [0, 0, 0, 0, 0],
+    ],
+    5,
+  ],
+  [
+    [
+      [1, 2, 3, 2, 1],
+      [3, 2, 1, 4, 7],
+    ],
+    3,
+  ],
+  [
+    [
+      [1, 2, 7, 2, 1],
+      [3, 2, 1, 4, 7],
+    ],
+    2,
+  ],
+  [[[1], [1]], 1],
+  [[[1], [2]], 0],
+  [
+    [
+      [0, 1, 1, 1, 1],
+      [1, 0, 1, 0, 1],
+    ],
+    2,
+  ],
+].forEach((e) =>
+  test(e[0].join(' | '), () => {
+    expect(findLength.apply(null, e[0])).toEqual(
+      e[1]
+    );
+  })
+);
+
+/**
+ *   0 1 2 3
+ * 0 > > > >
+ * 1 | > > |
+ * 2 < < < |
+ * @param {number[][]} matrix
+ * @return {number[]}
+ */
+function spiralOrder(matrix) {
+  // x = 0, y = 0
+  let position = [0, 0];
+  let [points, addPoint] = [
+    [matrix[0][0]],
+    (position) => {
+      points.push(
+        matrix[position[0]][position[1]]
+      );
+    },
+  ];
+
+  const movements = {
+    up: () => position[0]--,
+    down: () => position[0]++,
+    left: () => position[1]--,
+    right: () => position[1]++,
+  };
+  const edges = {
+    top: 0,
+    down: matrix.length - 1,
+    left: 0,
+    right: matrix[0].length - 1,
+  };
+
+  while (
+    edges.top <= edges.down &&
+    edges.left <= edges.right
+  ) {
+    // go right
+    while (position[1] < edges.right) {
+      movements.right();
+      addPoint(position);
+    }
+    // go down
+    while (position[0] < edges.down) {
+      movements.down();
+      addPoint(position);
+    }
+    // shrink the up/right edges
+    edges.top++;
+    edges.right--;
+
+    // if donw>top go up
+    if (edges.down < edges.top) {
+      break;
+    }
+    while (position[1] > edges.left) {
+      movements.left();
+      addPoint(position);
+    }
+    // if right go left
+    if (edges.right < edges.left) {
+      break;
+    }
+    while (position[0] > edges.top) {
+      movements.up();
+      addPoint(position);
+    }
+    // shrink the down/left edges
+    edges.down--;
+    edges.left++;
+  }
+
+  return points;
+}
+
+[
+  [
+    [
+      [1, 2, 3],
+      [4, 5, 6],
+      [7, 8, 9],
+    ],
+    [1, 2, 3, 6, 9, 8, 7, 4, 5],
+  ],
+  [
+    [
+      [1, 2, 3, 4],
+      [5, 6, 7, 8],
+      [9, 10, 11, 12],
+    ],
+    [1, 2, 3, 4, 8, 12, 11, 10, 9, 5, 6, 7],
+  ],
+].forEach((e) =>
+  test(e.join(' | '), () => {
+    expect(spiralOrder(e[0])).toEqual(e[1]);
+  })
+);
