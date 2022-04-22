@@ -1949,3 +1949,129 @@ function spiralOrder(matrix) {
     expect(spiralOrder(e[0])).toEqual(e[1]);
   })
 );
+
+/**
+ * Definition for a binary tree node.
+ * function TreeNode(val, left, right) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.left = (left===undefined ? null : left)
+ *     this.right = (right===undefined ? null : right)
+ * }
+ */
+/**
+ * @algo
+ *   9,2,3
+ *   2,9,3
+ *   split inorder by preorder[0]
+ *     if the length of the sub > 1
+ *       then recorsively split with new preorder, inorder
+ * @param {number[]} preorder
+ * @param {number[]} inorder
+ * @return {TreeNode}
+ */
+function buildTree(preorder, inorder) {
+  const buildRoot = (
+    preOrdLeftIdx,
+    preOrdRightIdx,
+    inOrdLeftIdx,
+    inOrdRightIdx
+  ) => {
+    if (
+      preOrdLeftIdx > preOrdRightIdx ||
+      inOrdLeftIdx > inOrdRightIdx
+    ) {
+      return null;
+    }
+
+    const rootVal = preorder[preOrdLeftIdx];
+    const rootInOrdIdx = inorder.indexOf(rootVal);
+    const leftLen = rootInOrdIdx - inOrdLeftIdx;
+    const root = {
+      val: rootVal,
+      left: null,
+      right: null,
+    };
+
+    root.left = buildRoot(
+      preOrdLeftIdx + 1,
+      preOrdLeftIdx + leftLen,
+      inOrdLeftIdx,
+      rootInOrdIdx - 1
+    );
+    root.right = buildRoot(
+      preOrdLeftIdx + leftLen + 1,
+      preOrdRightIdx,
+      rootInOrdIdx + 1,
+      inOrdRightIdx
+    );
+
+    return root;
+  };
+
+  return buildRoot(
+    0,
+    preorder.length - 1,
+    0,
+    inorder.length - 1
+  );
+}
+
+test('example 1', () => {
+  expect(
+    buildTree(
+      [3, 9, 20, 15, 7],
+      [9, 3, 15, 20, 7]
+    )
+  ).toEqual({
+    val: 3,
+    left: {
+      val: 9,
+      left: null,
+      right: null,
+    },
+    right: {
+      val: 20,
+      left: {
+        val: 15,
+        left: null,
+        right: null,
+      },
+      right: {
+        val: 7,
+        left: null,
+        right: null,
+      },
+    },
+  });
+});
+test('example 2', () => {
+  expect(buildTree([-1], [-1])).toEqual({
+    val: -1,
+    left: null,
+    right: null,
+  });
+});
+test('test case 3', () => {
+  expect(buildTree([1, 2], [1, 2])).toEqual({
+    right: { left: null, right: null, val: 2 },
+    left: null,
+    val: 1,
+  });
+});
+test('test case 4', () => {
+  expect(buildTree([1, 2, 3], [1, 2, 3])).toEqual(
+    {
+      right: {
+        left: null,
+        right: {
+          val: 3,
+          left: null,
+          right: null,
+        },
+        val: 2,
+      },
+      left: null,
+      val: 1,
+    }
+  );
+});
