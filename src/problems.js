@@ -1949,6 +1949,102 @@ function spiralOrder(matrix) {
     expect(spiralOrder(e[0])).toEqual(e[1]);
   })
 );
+/**
+ * @algo
+ *    9,3,15,20,7 left,root,right inorder
+ *    l
+ *    9,15,7,20,3 left,right,root postorder
+ *              r
+ *    let root be postorder.last()
+ *    let root.left be rec(newInorder, newPostorder)
+ *      newInorder <- split inorder by idx of root val
+ *                    select left sub arr A
+ *      newPostorder <- pop root from postorder
+ *                      select leftIdx..=length of A - 1)
+ *    let root.right be rec(newPostorder, newPostorder)
+ *      newInorder <- split inorder by root idx
+ *                    select right sub arr B
+ *      newPostorder <- pop root from postorder
+ *                      select length of A..=rightIdx
+ * @param {number[]} inorder
+ * @param {number[]} postorder
+ * @return {TreeNode}
+ */
+function buildTree(inorder, postorder) {
+  const buildRoot = (
+    postOrdLeftIdx,
+    postOrdRightIdx,
+    inOrdLeftIdx,
+    inorderRightIdx
+  ) => {
+    if (
+      inOrdLeftIdx > inorderRightIdx ||
+      postOrdLeftIdx > postOrdRightIdx
+    ) {
+      return null;
+    }
+
+    const rootVal = postorder[postOrdRightIdx];
+    const root = {
+      val: rootVal,
+      left: null,
+      right: null,
+    };
+    const rootInOrdIdx = inorder.indexOf(rootVal);
+    const leftLen = rootInOrdIdx - inOrdLeftIdx;
+
+    root.left = buildRoot(
+      postOrdLeftIdx,
+      postOrdLeftIdx + leftLen - 1,
+      inOrdLeftIdx,
+      rootInOrdIdx - 1
+    );
+    root.right = buildRoot(
+      postOrdLeftIdx + leftLen,
+      postOrdRightIdx - 1,
+      rootInOrdIdx + 1,
+      inorderRightIdx
+    );
+
+    return root;
+  };
+
+  return buildRoot(
+    0,
+    inorder.length - 1,
+    0,
+    postorder.length - 1
+  );
+}
+
+test('example 1', () => {
+  expect(
+    buildTree(
+      [9, 3, 15, 20, 7],
+      [9, 15, 7, 20, 3]
+    )
+  ).toEqual({
+    val: 3,
+    left: {
+      val: 9,
+      left: null,
+      right: null,
+    },
+    right: {
+      val: 20,
+      left: {
+        val: 15,
+        left: null,
+        right: null,
+      },
+      right: {
+        val: 7,
+        left: null,
+        right: null,
+      },
+    },
+  });
+});
 
 /**
  * Definition for a binary tree node.
@@ -1959,12 +2055,19 @@ function spiralOrder(matrix) {
  * }
  */
 /**
+ * Construct Binary Tree from Preorder and Inorder Traversal
  * @algo
- *   9,2,3
- *   2,9,3
- *   split inorder by preorder[0]
- *     if the length of the sub > 1
- *       then recorsively split with new preorder, inorder
+ *   9,2,3 root,left,right
+ *   2,9,3 left,root,right
+ *   let root be preorder[0]
+ *   let root.left = rev(newPreorder, newInorder)
+ *     newInorder <- split inorder by root value
+ *                   select left sub arr A
+ *     newPreorder <- select left+1..=(left+length of A)
+ *   let root.right = rev(newPreorder, new)
+ *     newInorder <- split inorder by root value
+ *                   select left sub arr B
+ *     newPostorder <- select (left+1+length of A)..=right
  * @param {number[]} preorder
  * @param {number[]} inorder
  * @return {TreeNode}
