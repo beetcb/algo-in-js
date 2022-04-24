@@ -2178,3 +2178,90 @@ test('test case 4', () => {
     }
   );
 });
+
+/**
+ * @param {number[][]} grid
+ * @return {number}
+ * @algo
+ *   minSumOfPath = f(0,0) = min(f(i+1,j), f(i,j+1), handle cornor cases
+ *   for (i (m-1)..=0) {
+ *     for (j (n-1)..=0) {
+ *       * cornor case n == 0 || m == 0
+ *       * if j == colLen, i shall go down only
+ *       * if i == rowLen, j shall go right only
+ *       minPathSum[i][j] = min(minPathSum[i+1,j], minPathSum[i,j+1])
+ *     }
+ *   }
+ */
+function minPathSum(grid) {
+  const [rowLen, colLen] = [
+    grid.length,
+    grid[0].length,
+  ];
+  if (rowLen === 1) {
+    return grid[0].reduce(
+      (acc, num) => acc + num,
+      0
+    );
+  }
+  if (colLen === 1) {
+    return grid.reduce(
+      (acc, [num]) => acc + num,
+      0
+    );
+  }
+
+  let readMinSum = {};
+  for (let row = rowLen - 1; row >= 0; row--) {
+    for (let col = colLen - 1; col >= 0; col--) {
+      const currMinSum =
+        Math.min(
+          row !== rowLen - 1
+            ? readMinSum[`${row + 1}${col}`]
+            : col === colLen - 1
+            ? 0
+            : Math.min(),
+          col !== colLen - 1
+            ? readMinSum[`${row}${col + 1}`]
+            : row === rowLen - 1
+            ? 0
+            : Math.min()
+        ) + grid[row][col];
+
+      readMinSum[`${row}${col}`] = currMinSum;
+    }
+  }
+
+  return readMinSum[`00`];
+}
+
+/**
+ * @param {TreeNode} root
+ * @return {number}
+ * @algo
+ *   findH(r): find height of curr node, update maxD when (2+lH+lH) > maxD
+ *     -> -1, if r === null
+ *     -> 1 + max(findH(root.left), findH(root.right))
+ */
+function diameterOfBinaryTree(root) {
+  if (root.left === null && root.right === null) {
+    return 0;
+  }
+
+  let maxD = Math.max();
+  const findH = (r) => {
+    if (r === null) {
+      return -1;
+    }
+
+    const lH = findH(r.left);
+    const rH = findH(r.right);
+    const currMaxD = lH + rH + 2;
+
+    maxD = Math.max(currMaxD, maxD);
+    return 1 + Math.max(lH, rH);
+  };
+
+  findH(root);
+  return maxD;
+}
