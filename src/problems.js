@@ -626,7 +626,6 @@ function debounce(
   return (...args) => {
     if (leading && !timerId) {
       func.apply(this, args);
-      setTimerId(1);
     } else {
       setPrevArgs(args);
     }
