@@ -2264,3 +2264,84 @@ function diameterOfBinaryTree(root) {
   findH(root);
   return maxD;
 }
+
+/**
+ * Definition for singly-linked list.
+ * function ListNode(val, next) {
+ *     this.val = (val===undefined ? 0 : val)
+ *     this.next = (next===undefined ? null : next)
+ * }
+ */
+/**
+ * @param {ListNode} head
+ * @param {number} k
+ * @return {ListNode}
+ * @algo
+ *   [1,2,3,4,5], k = 3
+ *   ->
+ *   [3,2,1,4,5]
+ */
+function reverseKGroup(head, k) {
+  if (k === 1) {
+    return head;
+  }
+  const reverseK = (head, k) => {
+    let newBeforeTail = head;
+    let prev = null;
+    let curr = head;
+
+    while (curr && k > 0) {
+      const tempNext = curr.next;
+      if (prev === null) {
+        newBeforeTail = curr;
+      }
+
+      curr.next = prev;
+      prev = curr;
+      curr = tempNext;
+      k--;
+    }
+
+    return [prev, curr, newBeforeTail];
+  };
+
+  const checkRestLen = (head, k) => {
+    while (k > 0) {
+      head = head?.next;
+      k--;
+    }
+
+    // head === null is ok, means we are right at the tail
+    return head !== undefined;
+  };
+
+  let [firstReversedHead, beforeTail] = [
+    null,
+    null,
+  ];
+  let [newHead, curr, newBeforeTail] = [
+    head,
+    head,
+    head,
+  ];
+  while (checkRestLen(curr, k)) {
+    [newHead, curr, newBeforeTail] = reverseK(
+      curr,
+      k
+    );
+    if (firstReversedHead === null) {
+      firstReversedHead = newHead;
+    }
+
+    // cat reversed lists
+    if (beforeTail) {
+      beforeTail.next = newHead;
+    }
+    beforeTail = newBeforeTail;
+  }
+
+  // cat reversed list with reset
+  newBeforeTail.next = curr;
+
+  return firstReversedHead;
+}
