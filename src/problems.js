@@ -2314,3 +2314,60 @@ function reverseKGroup(head, k) {
 
   return firstReversedHead;
 }
+/**
+ * @algo
+ *   construct rootToChilds -> dfs
+ */
+function computeMaxDepth(nodes) {
+  let rootNode = null;
+  const rootToChilds = {};
+
+  for (const { id, parent } of nodes) {
+    if (!rootToChilds[parent]) {
+      rootToChilds[parent] = [];
+    }
+    rootToChilds[parent].push(id.toString());
+
+    if (parent === -1) {
+      rootNode = id.toString();
+    }
+  }
+
+  const getMaxD = (root) => {
+    if (!root) {
+      return 0;
+    }
+
+    const [left, right] =
+      rootToChilds[root] ?? [];
+
+    return (
+      Math.max(getMaxD(left), getMaxD(right)) + 1
+    );
+  };
+
+  return getMaxD(rootNode);
+}
+const TestNodes = [
+  { id: 5, parent: 4 },
+  { id: 2, parent: 0 },
+  { id: 3, parent: 1 },
+  { id: 1, parent: 0 },
+  { id: 4, parent: 1 },
+  { id: 0, parent: -1 },
+];
+const TestNodes2 = [
+  { id: 5, parent: 4 },
+  { id: 2, parent: 0 },
+  { id: 3, parent: 1 },
+  { id: 1, parent: 0 },
+  { id: 4, parent: 1 },
+  { id: 0, parent: -1 },
+  { id: 8, parent: 7 },
+  { id: 9, parent: 8 },
+  { id: 7, parent: 2 },
+];
+test('works', () => {
+  expect(computeMaxDepth(TestNodes)).toBe(4);
+  expect(computeMaxDepth(TestNodes2)).toBe(5);
+});
