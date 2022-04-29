@@ -1,37 +1,6 @@
 import * as tests from './tests';
 
 /**
- * Impl Array.prototype.flat()
- * @algo
- *  dfs traverse, use `pointer` or `concat` to push flatted arr
- * @param {Array<number>} array
- */
-function flatten(array) {
-  if (
-    array === undefined ||
-    array === null ||
-    array.length === 0
-  ) {
-    return array;
-  }
-
-  let res = [];
-  for (const ele of array) {
-    if (Array.prototype.isPrototypeOf(ele)) {
-      res.push(...flatten(ele));
-      continue;
-    }
-    res.push(ele);
-  }
-  return res;
-}
-// --------------test--------------
-tests.assertObEq(
-  flatten([1, 2, 3, [4, 5, [6, 7], 8]]),
-  [1, 2, 3, 4, 5, 6, 7, 8]
-);
-
-/**
  * Binary Search
  */
 function binarySearch0(array, target) {
