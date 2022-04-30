@@ -2371,3 +2371,137 @@ test('works', () => {
   expect(computeMaxDepth(TestNodes)).toBe(4);
   expect(computeMaxDepth(TestNodes2)).toBe(5);
 });
+
+/**
+ * 3 -> 2 -> 0 -> 4 -> 5 -> 2
+ * @param {ListNode} head
+ * @return {boolean}
+ * @algo
+ *   if next node pointer matches readNumToNode[next.val], return true
+ *   otherwise return false
+ */
+function hasCycle(head) {
+  // const readNumToNode = {};
+  // let currHead = head;
+
+  // while (currHead) {
+  //   const { val, next } = currHead;
+  //   if (
+  //     readNumToNode[next?.val] === currHead.next
+  //   ) {
+  //     return true;
+  //   }
+
+  //   readNumToNode[val] = currHead;
+  //   currHead = next;
+  // }
+
+  // use two pointers
+  let [slowNode, fastNode] = [
+    head,
+    head?.next?.next,
+  ];
+  while (fastNode) {
+    if (slowNode === fastNode) {
+      return true;
+    }
+    slowNode = slowNode?.next;
+    fastNode = fastNode?.next?.next;
+  }
+  return false;
+}
+
+function deleteNode(node) {
+  let [currNode, nextNode] = [node, node.next];
+
+  currNode.val = nextNode.val;
+  currNode.next = nextNode.next;
+}
+
+function deleteMiddle(head) {
+  if (!head.next) {
+    return null;
+  }
+
+  let [prevNode, currNode] = [head, head];
+  let fastNode = head.next?.next;
+  while (true) {
+    // delete curr node
+    if (fastNode === undefined) {
+      prevNode.next = currNode.next;
+      return head;
+    }
+
+    // delete next node
+    if (fastNode === null) {
+      currNode.next = currNode?.next?.next;
+      return head;
+    }
+
+    prevNode = currNode;
+    currNode = currNode?.next;
+    fastNode = fastNode?.next?.next;
+  }
+}
+
+/**
+ * @param {*} head
+ * @algo
+ *   1 2 3 4
+ *   s   f
+ *     sf
+ */
+function detectCycle(head) {
+  if (!head || !head.next) {
+    return null;
+  }
+
+  let [slowNode, fastNode] = [
+    head.next,
+    head.next?.next,
+  ];
+
+  while (fastNode) {
+    if (fastNode === slowNode) {
+      slowNode = head;
+      while (slowNode !== fastNode) {
+        fastNode = fastNode.next;
+        slowNode = slowNode.next;
+      }
+
+      return slowNode;
+    }
+    slowNode = slowNode?.next;
+    fastNode = fastNode?.next?.next;
+  }
+
+  return null;
+}
+
+/**
+ * @algo
+ * 2 3 4 5 ,9 8 3 4 5
+ * 9 8 3 4 5 ,2 3 4 5
+ */
+function getIntersectionNode(headA, headB) {
+  let [nodeA, nodeB] = [headA, headB];
+  let [isPadA, isPadB] = [false, false];
+  while (nodeA && nodeB) {
+    if (nodeA === nodeB && isPadA && isPadB) {
+      return nodeA;
+    }
+
+    nodeA = nodeA.next;
+    nodeB = nodeB.next;
+    if (nodeA === null && !isPadA) {
+      nodeA = headB;
+      isPadA = true;
+    }
+    if (nodeB === null && !isPadB) {
+      nodeB = headA;
+      isPadB = true;
+    }
+  }
+
+  return null;
+}
