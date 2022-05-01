@@ -2505,3 +2505,131 @@ function getIntersectionNode(headA, headB) {
 
   return null;
 }
+
+/**
+ * @algo
+ * recorsively split the list into left and right
+ * -> merge the left and right elements, return merged list
+ */
+function sortList(head) {
+  const compluteLen = (head) => {
+    let len = 0;
+    while (head) {
+      len++;
+      head = head.next;
+    }
+
+    return len;
+  };
+
+  // 1 2 3 4
+  // ^   ^ merge(1->2, 3->4)
+  // ^ ^ merge(1,2) merge(3,4)
+  const split = (head) => {
+    const len = compluteLen(head);
+    if (len <= 1) {
+      return head;
+    }
+    const mid = Math.floor(len / 2);
+
+    let leftH = head;
+    let rightH = head;
+    let tempMid = mid;
+    while (tempMid-- > 0) {
+      const tempNext = rightH.next;
+      if (tempMid === 0) {
+        rightH.next = null;
+      }
+      rightH = tempNext;
+    }
+
+    return merge(split(leftH), split(rightH));
+  };
+
+  const merge = (leftH, rightH) => {
+    let newHead = { next: null };
+    let currHead = newHead;
+    while (leftH || rightH) {
+      const [lv, rv] = [leftH?.val, rightH?.val];
+      if (
+        (lv ?? Math.min()) > (rv ?? Math.min())
+      ) {
+        currHead.next = { val: rv, next: null };
+        rightH = rightH?.next;
+      } else {
+        currHead.next = { val: lv, next: null };
+        leftH = leftH?.next;
+      }
+      currHead = currHead.next;
+    }
+
+    return newHead.next;
+  };
+
+  return split(head);
+}
+
+/**
+ * @return {number[][]}
+ * @algo
+ * maintain a levelQueue, dequeue origin queue util it's empty
+ *   levelQueue.enqueue(childs of ele)
+ *   if empty, compute res
+ */
+function levelOrder(root) {
+  if (!root) {
+    return [];
+  }
+
+  const bfs = (headOutNums, res) => {
+    let levelNums = [];
+    while (headOutNums.length > 0) {
+      let tempLen = headOutNums.length;
+      while (tempLen-- > 0) {
+        const node = headOutNums.shift();
+        levelNums.push(node.val);
+
+        if (node.left) {
+          headOutNums.push(node.left);
+        }
+        if (node.right) {
+          headOutNums.push(node.right);
+        }
+      }
+
+      res.push(levelNums);
+      levelNums = [];
+    }
+
+    return res;
+  };
+
+  return bfs([root], []);
+}
+
+/**
+ * @return {number}
+ * @algo
+ * getMinD(root): compute the minimum height of the root node
+ * -> 1, if root is leaf node
+ * -> +Infinity, if root is null, path is not valid
+ */
+function minDepth(root) {
+  if (!root) {
+    return 0;
+  }
+
+  const getMinD = (root) => {
+    if (!root) {
+      return Math.min();
+    }
+    if (!root.left && !root.right) {
+      return 1;
+    }
+    const leftD = getMinD(root.left);
+    const rightD = getMinD(root.right);
+    return Math.min(leftD, rightD) + 1;
+  };
+
+  return getMinD(root);
+}
