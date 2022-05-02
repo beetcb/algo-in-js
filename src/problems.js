@@ -2633,3 +2633,145 @@ function minDepth(root) {
 
   return getMinD(root);
 }
+
+/**
+ * @param {string[]} tokens
+ * @return {number}
+ * @algo
+ * traverse the tokens, for each token
+ *   if is operator, push the calculated popped two factor from tailOutTokens to tailOutTokens
+ *   else push token to tailOutTokens
+ */
+function evalRPN(tokens) {
+  let tailOutTokens = [];
+  let findFactors = (tailOutToken) => {
+    return [
+      Number(tailOutToken.pop()),
+      Number(tailOutToken.pop()),
+    ];
+  };
+  let isToken = (token) =>
+    token === '+' ||
+    token === '-' ||
+    token === '*' ||
+    token === '/';
+
+  for (const token of tokens) {
+    if (!isToken(token)) {
+      tailOutTokens.push(Number(token));
+      continue;
+    }
+
+    const [fac1, fac2] = findFactors(
+      tailOutTokens
+    );
+    if (token === '-') {
+      tailOutTokens.push(fac2 - fac1);
+    }
+    if (token === '+') {
+      tailOutTokens.push(fac2 + fac1);
+    }
+    if (token === '*') {
+      tailOutTokens.push(fac2 * fac1);
+    }
+    if (token === '/') {
+      let res = fac2 / fac1;
+      if (res < 0 && !Number.isInteger(res)) {
+        res += 1;
+      }
+
+      tailOutTokens.push(Math.floor(res));
+    }
+  }
+
+  return tailOutTokens[0];
+}
+
+class MyQueue {
+  constructor() {
+    this.curr = [];
+    this.backup = [];
+  }
+  /**
+   * @param {number} x
+   * @return {void}
+   */
+  push(x) {
+    this.curr.push(x);
+  }
+  /**
+   * @return {number}
+   * @algo
+   * run peek, pop top of backup queue
+   */
+  pop() {
+    this.peek();
+    return this.backup.pop();
+  }
+
+  /**
+   * @return {number}
+   * @algo
+   * if backup is empty, run backup process, let backup be a queue-like stack
+   * -> backup.top()
+   */
+  peek() {
+    if (this.backup.length === 0) {
+      while (this.curr.length > 0) {
+        this.backup.push(this.curr.pop());
+      }
+    }
+    return this.backup[this.backup.length - 1];
+  }
+  /**
+   * @return {boolean}
+   */
+  empty() {
+    return (
+      this.curr.length === 0 &&
+      this.backup.length === 0
+    );
+  }
+}
+
+/**
+ * @param {number[]} heights
+ * @return {number}
+ * @algo
+ * traverse heights
+ *   while tailOutLeftIdxToH's top height > curr height, pop and campare maxArea
+ *   push [leftMostIdx, height] to tailOutLeftIdxToH
+ * traverse tailOutLeftIdxToH, campare maxArea
+ */
+function largestRectangleArea(heights) {
+  const tailOutLeftIdxToH = [];
+  const top = () =>
+    tailOutLeftIdxToH[
+      tailOutLeftIdxToH.length - 1
+    ];
+
+  let maxArea = 0;
+  heights.forEach((currH, currIdx) => {
+    let leftIdx = currIdx;
+    while (top() && top()[1] > currH) {
+      const topE = tailOutLeftIdxToH.pop();
+      maxArea = Math.max(
+        maxArea,
+        topE[1] * (currIdx - topE[0])
+      );
+      leftIdx = topE[0];
+    }
+
+    tailOutLeftIdxToH.push([leftIdx, currH]);
+  });
+
+  while (tailOutLeftIdxToH.length > 0) {
+    const topE = tailOutLeftIdxToH.pop();
+    maxArea = Math.max(
+      maxArea,
+      topE[1] * (heights.length - topE[0])
+    );
+  }
+
+  return maxArea;
+}
