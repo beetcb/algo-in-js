@@ -168,76 +168,6 @@ function longestPalindrome(s) {
 }
 
 /**
- * @param {number[]} temperatures
- * @return {number[]}
- *
- * 1 3 2 1
- * @state lowerIdxs = [0]
- * @state resNums = [0,0,0...t.len]
- * @state curTempIdx = 1, ++, < t.length
- * @algo
- *  t[curTempIdx] < t[lowerIdxs.last()]
- *    ? lowerIdxs.push(curTempIdx)
- *    : loop lowerIdxs {
- *        t[curTempIdx] > t[lowerIdxs.last()]
- *          ? loweridxs.pop()
- *          : resNums[lowerIdxs.last()] = cur - last
- *      } */
-var dailyTemperatures = function (temperatures) {
-  if (temperatures.length <= 1) {
-    return [0];
-  }
-
-  let curTempIdx = 1;
-  let lowerIdxs = [0];
-  let resNums = Array(temperatures.length);
-  for (let i = 0; i < temperatures.length; i++) {
-    resNums[i] = 0;
-  }
-
-  while (curTempIdx < temperatures.length) {
-    let topOfStack = lowerIdxs.slice(-1)[0];
-    if (
-      temperatures[curTempIdx] <
-      temperatures[topOfStack]
-    ) {
-      lowerIdxs.push(curTempIdx);
-      continue;
-    }
-
-    while (true) {
-      if (lowerIdxs.length === 0) {
-        break;
-      }
-
-      if (
-        temperatures[curTempIdx] <=
-        temperatures[topOfStack]
-      ) {
-        break;
-      }
-
-      resNums[topOfStack] =
-        curTempIdx - topOfStack;
-      lowerIdxs.pop();
-      topOfStack = lowerIdxs.slice(-1)[0];
-    }
-
-    lowerIdxs.push(curTempIdx);
-    curTempIdx++;
-  }
-
-  return resNums;
-};
-// --------------test--------------
-tests.assertObEq(
-  dailyTemperatures([
-    89, 62, 70, 58, 47, 47, 46, 76, 100, 70,
-  ]),
-  [8, 1, 5, 4, 3, 2, 1, 1, 0, 0]
-);
-
-/**
  * @param {character[]} s
  * @return {void} Do not return anything, modify s in-place instead.
  * @state leftFwdIdx = 0,++,<right
@@ -2774,4 +2704,82 @@ function largestRectangleArea(heights) {
   }
 
   return maxArea;
+}
+
+/**
+ * @param {number[]} temperatures
+ * @return {number[]}
+ * @algo
+ * for tem in enum(temperatures)
+ *   if nextTem<=tem, then push curr tem to tailOutIdxToTemperature to maintain then down tems
+ *   else if tailOutIdxToTemperature not empty, pop and compute the result
+ */
+function dailyTemperatures(temperatures) {
+  let tailOutIdxToTemperature = [];
+  let res = Array(temperatures.length).fill(0);
+  const peek = (stack) => stack[stack.length - 1];
+
+  for (
+    let idx = 0;
+    idx < temperatures.length - 1;
+    idx++
+  ) {
+    const nextIdx = idx + 1;
+    if (
+      temperatures[nextIdx] <= temperatures[idx]
+    ) {
+      tailOutIdxToTemperature.push({
+        idx,
+        tem: temperatures[idx],
+      });
+      continue;
+    }
+
+    res[idx] = 1;
+
+    while (tailOutIdxToTemperature.length > 0) {
+      const topTem = peek(
+        tailOutIdxToTemperature
+      );
+      if (!(temperatures[nextIdx] > topTem.tem)) {
+        break;
+      }
+
+      res[topTem.idx] = nextIdx - topTem.idx;
+      tailOutIdxToTemperature.pop();
+    }
+  }
+
+  return res;
+}
+
+/**
+ * @return {number}
+ * @algo
+ * f(root): find longest zigzag path of [root->left, root->right], update maxPath the same time
+ * -> [-1,-1], root is null
+ * -> [f(root.right)+1,f(root.left)+1]
+ */
+function longestZigZag(root) {
+  let maxPath = 0;
+  const findZigZig = (root) => {
+    if (root === null) {
+      return [-1, -1];
+    }
+
+    const leftPath =
+      findZigZig(root.left)?.[1] + 1;
+    const rightPath =
+      findZigZig(root.right)?.[0] + 1;
+
+    const currMax = Math.max(leftPath, rightPath);
+    if (currMax > maxPath) {
+      maxPath = currMax;
+    }
+
+    return [leftPath, rightPath];
+  };
+
+  findZigZig(root);
+  return maxPath;
 }
