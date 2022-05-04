@@ -2783,3 +2783,191 @@ function longestZigZag(root) {
   findZigZig(root);
   return maxPath;
 }
+
+/**
+ * @param {number[]} nums
+ * @param {number} k
+ * @return {number[]}
+ * @algo
+ * maintain a queue of curr window idxs, update the queue, move window, calc res
+ */
+function maxSlidingWindow(nums, k) {
+  const result = [];
+  const wdIdxs = [];
+  const peek = (arr) => arr[arr.length - 1];
+  const updateWdIdxs = (idx) => {
+    while (nums[idx] >= nums[peek(wdIdxs)]) {
+      wdIdxs.pop();
+    }
+    wdIdxs.push(idx);
+  };
+  const moveWd = (idx) => {
+    if (wdIdxs[0] <= idx - k) {
+      wdIdxs.shift();
+    }
+  };
+
+  for (let idx = 0; idx < k; idx++) {
+    updateWdIdxs(idx);
+  }
+
+  result.push(nums[wdIdxs[0]]);
+
+  for (let idx = k; idx < nums.length; idx++) {
+    updateWdIdxs(idx);
+    moveWd(idx);
+    result.push(nums[wdIdxs[0]]);
+  }
+
+  return result;
+}
+
+/**
+ * Encodes a tree to a single string.
+ *
+ * @return {string}
+ */
+function serialize(root) {
+  let res = [];
+  const traverseNodes = (root, res) => {
+    if (root === null) {
+      res.push('N');
+      return;
+    }
+    res.push(root.val.toString());
+    traverseNodes(root.left, res);
+    traverseNodes(root.right, res);
+  };
+
+  traverseNodes(root, res);
+  return res.join(',');
+}
+
+/**
+ * Decodes your encoded data to tree.
+ *
+ * @param {string} data
+ */
+function deserialize(data) {
+  const nodes = data.split(',');
+  let idx = 0;
+  const buildNodes = () => {
+    if (nodes[idx] === 'N') {
+      idx++;
+      return null;
+    }
+
+    const node = { val: parseInt(nodes[idx]) };
+    idx++;
+    node.left = buildNodes();
+    node.right = buildNodes();
+
+    return node;
+  };
+
+  return buildNodes();
+}
+
+function serialize(root) {
+  const resEles = [];
+  const sameLevelNodes = [root];
+
+  while (sameLevelNodes.length > 0) {
+    const n = sameLevelNodes.shift();
+    resEles.push(n ? n.val : '#');
+
+    if (n !== null) {
+      sameLevelNodes.push(n.left, n.right);
+    }
+  }
+
+  return resEles.join(',');
+}
+
+function deserialize(data) {
+  const nodes = data.split(',').map((ele) =>
+    ele === '#'
+      ? null
+      : {
+          val: parseInt(ele),
+          left: null,
+          right: null,
+        }
+  );
+  if (nodes.length === 0) {
+    return null;
+  }
+
+  const root = nodes.shift();
+  const sameLevelNodes = [root];
+
+  while (sameLevelNodes.length > 0) {
+    const n = sameLevelNodes.shift();
+    if (n === null) {
+      continue;
+    }
+    n.left = nodes.shift() ?? null;
+    n.right = nodes.shift() ?? null;
+    sameLevelNodes.push(n.left, n.right);
+  }
+
+  return root;
+}
+
+/**
+ * @param {number[][]} matrix
+ * @return {number}
+ * @algo
+ * for r in matrix
+ *  for c in matrix[r]
+ *  findLongestP(r,c,matrix[r][-1]): find longest increasing path of (r,c)
+ *  -> 0, if out of bounds or curr<=prev
+ *  -> 1 + max(f(l),f(u),f(d),f(r))
+ */
+function longestIncreasingPath(matrix) {
+  const [rows, cols] = [
+    matrix.length,
+    matrix[0]?.length,
+  ];
+  const pointToMaxP = {};
+  let res = 1;
+
+  const findLongestP = (row, col, prevVal) => {
+    if (
+      row < 0 ||
+      row === rows ||
+      col < 0 ||
+      col === cols ||
+      prevVal >= matrix[row][col]
+    ) {
+      return 0;
+    }
+
+    const currVal = matrix[row][col];
+
+    const pointKey = `${row}-${col}`;
+    if (pointToMaxP[pointKey]) {
+      return pointToMaxP[pointKey];
+    }
+
+    const maxP =
+      Math.max(
+        findLongestP(row - 1, col, currVal),
+        findLongestP(row + 1, col, currVal),
+        findLongestP(row, col - 1, currVal),
+        findLongestP(row, col + 1, currVal)
+      ) + 1;
+    res = Math.max(res, maxP);
+    pointToMaxP[pointKey] = maxP;
+
+    return maxP;
+  };
+
+  for (let row = 0; row < rows; row++) {
+    for (let col = 0; col < cols; col++) {
+      findLongestP(row, col, Math.max());
+    }
+  }
+
+  return res;
+}
