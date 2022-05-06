@@ -2971,3 +2971,38 @@ function longestIncreasingPath(matrix) {
 
   return res;
 }
+
+/**
+ * @algo
+ * f(root): count matched children
+ * -> 0, if root is null
+ * -> f(root.left) + f(root.right)
+ *    + (matches ? 1 : 0)
+ */
+function lowestCommonAncestor(root, p, q) {
+  let res;
+  const findMatch = (root) => {
+    if (!root) {
+      return 0;
+    }
+
+    let matchCount =
+      findMatch(root.left) +
+      findMatch(root.right);
+    if (
+      root.val === p.val ||
+      root.val === q.val
+    ) {
+      matchCount += 1;
+    }
+
+    if (matchCount === 2 && !res) {
+      res = root;
+    }
+
+    return matchCount;
+  };
+
+  findMatch(root);
+  return res;
+}
