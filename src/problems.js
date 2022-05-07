@@ -3006,3 +3006,75 @@ function lowestCommonAncestor(root, p, q) {
   findMatch(root);
   return res;
 }
+
+/**
+ * @return {boolean}
+ * @algo
+ * f(root): determine root is valid or not
+ * -> true, if root is null
+ * -> false, if leftBound<root<rightBound is false
+ * -> f(root.left) && f(root.right)
+ */
+function isValidBST(root) {
+  const isValidRoot = (
+    root,
+    leftBound,
+    rightBound
+  ) => {
+    if (!root) {
+      return true;
+    }
+
+    if (
+      !(
+        leftBound < root.val &&
+        rightBound > root.val
+      )
+    ) {
+      return false;
+    }
+
+    return (
+      isValidRoot(
+        root.left,
+        leftBound,
+        root.val
+      ) &&
+      isValidRoot(
+        root.right,
+        root.val,
+        rightBound
+      )
+    );
+  };
+
+  return isValidRoot(root, -Infinity, +Infinity);
+}
+
+/**
+ * @return {boolean}
+ * @algo
+ * traverse every node of the tree, by level
+ *   set hasNull to true if we encounter a null node
+ *   -> false, if node not null and hasNull
+ * -> true
+ */
+function isCompleteTree(root) {
+  const levelNodes = [root];
+  let hasNull = false;
+  while (levelNodes.length > 0) {
+    const node = levelNodes.shift();
+    if (node === null && !hasNull) {
+      hasNull = true;
+    }
+    if (node) {
+      if (hasNull) {
+        return false;
+      }
+      levelNodes.push(node.left);
+      levelNodes.push(node.right);
+    }
+  }
+
+  return true;
+}
