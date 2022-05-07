@@ -3078,3 +3078,43 @@ function isCompleteTree(root) {
 
   return true;
 }
+
+/**
+ * @algo
+ * trverse two tree simultaneously, construct new tree recorsively
+ * createTree(root1, root2): construct new tree based on root1 and root2
+ * -> null, if !root1 && !root2
+ * -> newRoot, create newRoot by following the 3 rules below
+ *    1. newRoot.val to sum of root1 and root2 val
+ *    2. newRoot.left = createTree(root1?.left, root2?.left)
+ *    3. newRoot.right = createTree(root1?.right, root2?.right)
+ */
+function mergeTrees(root1, root2) {
+  const createTree = (root1, root2) => {
+    if (!root1 && !root2) {
+      return null;
+    }
+
+    let currVal =
+      (root1?.val ?? 0) + (root2?.val ?? 0);
+    let newRoot = {
+      val: 0,
+      left: null,
+      right: null,
+    };
+
+    newRoot.val = currVal;
+    newRoot.left = createTree(
+      root1?.left,
+      root2?.left
+    );
+    newRoot.right = createTree(
+      root1?.right,
+      root2?.right
+    );
+
+    return newRoot;
+  };
+
+  return createTree(root1, root2);
+}
