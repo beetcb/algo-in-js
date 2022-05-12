@@ -1,71 +1,84 @@
-import * as tests from './tests';
-
 /**
- * Binary Search
+ *
+ * @param {Array<number>} arr
+ * @param {number} target
+ * @return {number}
  */
-function binarySearch0(array, target) {
-  const len = array.length;
-  if (len === 0) {
-    return -1;
+function binarySearchRec(arr, target) {
+  let [leftIdx, rightIdx] = [0, arr.length - 1];
+
+  while (leftIdx <= rightIdx) {
+    const midIdx =
+      leftIdx + (rightIdx - leftIdx) / 2;
+    if (arr[midIdx] === target) {
+      return midIdx;
+    }
+    if (arr[midIdx] > target) {
+      rightIdx = midIdx - 1;
+    } else {
+      leftIdx = midIdx + 1;
+    }
   }
 
-  return search(array, 0, len - 1, target);
+  return -1;
+}
+test('shall works', () => {
+  expect(binarySearchRec([1, 2, 3], 3)).toBe(2);
+  expect(binarySearchRec([1, 2, 3], 9)).toBe(-1);
+});
 
-  function search(array, start, end, target) {
-    if (start > end) {
+/**
+ *
+ * @param {Array<number>} arr
+ * @param {number} target
+ * @return {number}
+ */
+function binarySearchRec(arr, target) {
+  let [leftIdx, rightIdx] = [0, arr.length - 1];
+
+  const searchRec = (
+    arr,
+    target,
+    leftIdx,
+    rightIdx
+  ) => {
+    if (leftIdx > rightIdx) {
       return -1;
     }
-
-    const mid = Math.floor((start + end) / 2);
-    const val = array[mid];
-
-    if (target === val) {
-      return mid;
+    const midIdx =
+      leftIdx + (rightIdx - leftIdx) / 2;
+    if (arr[midIdx] === target) {
+      return midIdx;
     }
-    if (target < val) {
-      return search(array, start, mid, target);
-    }
-    return search(array, mid + 1, end, target);
-  }
-}
 
-/**
- * Impl binarySearch using iteration
- */
-function binarySearch(array, target) {
-  const len = array.length;
-  if (len === 0) {
-    return -1;
-  }
-
-  let [start, end] = [0, len - 1];
-
-  while (start + 1 < end) {
-    const mid = start + (end - start) - 1;
-    const cur = array[mid];
-
-    if (cur === target) {
-      return mid;
-    } else if (cur < target) {
-      start = mid + 1;
+    if (arr[leftIdx] > target) {
+      return searchRec(
+        arr,
+        target,
+        leftIdx,
+        midIdx - 1
+      );
     } else {
-      end = mid - 1;
+      return searchRec(
+        arr,
+        target,
+        midIdx + 1,
+        rightIdx
+      );
     }
-  }
+  };
 
-  if (array[start] === target) {
-    return start;
-  }
-  if (array[end] === target) {
-    return end;
-  }
+  return searchRec(
+    arr,
+    target,
+    leftIdx,
+    rightIdx
+  );
 }
-// --------------test--------------
-tests.assertPremitive(binarySearch([1, 2], 2), 1);
-tests.assertPremitive(binarySearch([1, 3], 3), 1);
-tests.assertPremitive(binarySearch([1, 3], 1), 0);
-tests.assertPremitive(binarySearch([1], 1), 0);
-tests.assertPremitive(binarySearch([], 3), -1);
+test('shall works', () => {
+  expect(binarySearchRec([1, 2, 3], 3)).toBe(2);
+  expect(binarySearchRec([1, 2, 3], 9)).toBe(-1);
+});
 
 /**
  * Fibonacii array
@@ -3118,3 +3131,171 @@ function mergeTrees(root1, root2) {
 
   return createTree(root1, root2);
 }
+
+/**
+ * Find the first idx of element equal to target
+ * @returns
+ */
+function findFirstIndexOf(arr, target) {
+  let [leftIdx, rightIdx] = [0, arr.length - 1];
+  let res = -1;
+  while (leftIdx <= rightIdx) {
+    const midIdx = Math.floor(
+      leftIdx + (rightIdx - leftIdx) / 2
+    );
+    if (target <= arr[midIdx]) {
+      if (arr[midIdx] === target) {
+        res = midIdx;
+      }
+      rightIdx = midIdx - 1;
+    } else {
+      leftIdx = midIdx + 1;
+    }
+  }
+  return res;
+}
+
+test('shall work when no repeat', () => {
+  expect(findFirstIndexOf([1, 2, 3], 3)).toBe(2);
+  expect(findFirstIndexOf([1, 2, 3], 2)).toBe(1);
+  expect(findFirstIndexOf([1, 2, 3], 1)).toBe(0);
+  expect(findFirstIndexOf([1, 2, 3], 4)).toBe(-1);
+});
+test('shall work when repeat', () => {
+  expect(
+    findFirstIndexOf([1, 2, 2, 3, 3], 2)
+  ).toBe(1);
+  expect(
+    findFirstIndexOf([1, 2, 2, 3, 3], 3)
+  ).toBe(3);
+});
+
+/**
+ * Find the last idx of element equal to target
+ */
+function findLastIndexOf(arr, target) {
+  let [leftIdx, rightIdx] = [0, arr.length - 1];
+  let res = -1;
+  while (leftIdx <= rightIdx) {
+    const midIdx = Math.floor(
+      leftIdx + (rightIdx - leftIdx) / 2
+    );
+    if (target >= arr[midIdx]) {
+      if (arr[midIdx] === target) {
+        res = midIdx;
+      }
+      leftIdx = midIdx + 1;
+    } else {
+      rightIdx = midIdx - 1;
+    }
+  }
+  return res;
+}
+
+test('shall work when no repeat', () => {
+  expect(findLastIndexOf([1, 2, 3], 3)).toBe(2);
+  expect(findLastIndexOf([1, 2, 3], 2)).toBe(1);
+  expect(findLastIndexOf([1, 2, 3], 1)).toBe(0);
+  expect(findLastIndexOf([1, 2, 3], 4)).toBe(-1);
+});
+test('shall work when repeat', () => {
+  expect(
+    findLastIndexOf([1, 2, 2, 3, 3], 2)
+  ).toBe(2);
+  expect(
+    findLastIndexOf([1, 2, 2, 3, 3], 3)
+  ).toBe(4);
+});
+/**
+ * Find last idx of the element greater or equal to target
+ * @param {Array<number>} arr
+ * @param {number} target
+ * @returns
+ */
+function findLastIndexOfLessOrEqual(arr, target) {
+  let [leftIdx, rightIdx] = [0, arr.length - 1];
+  let res = -1;
+  while (leftIdx <= rightIdx) {
+    const midIdx = Math.floor(
+      leftIdx + (rightIdx - leftIdx) / 2
+    );
+    if (target <= arr[midIdx]) {
+      res = midIdx;
+      rightIdx = midIdx - 1;
+    } else {
+      leftIdx = midIdx + 1;
+    }
+  }
+  return res;
+}
+
+test('shall work when no repeat', () => {
+  expect(
+    findLastIndexOfLessOrEqual([1, 2, 3], 3)
+  ).toBe(2);
+  expect(
+    findLastIndexOfLessOrEqual([1, 2, 3], 2)
+  ).toBe(1);
+  expect(
+    findLastIndexOfLessOrEqual([1, 2, 3], 1)
+  ).toBe(0);
+  expect(
+    findLastIndexOfLessOrEqual([1, 2, 3], 4)
+  ).toBe(-1);
+});
+test('shall work when repeat', () => {
+  expect(
+    findLastIndexOfLessOrEqual([1, 2, 2, 3, 3], 0)
+  ).toBe(0);
+  expect(
+    findLastIndexOfLessOrEqual([1, 2, 2, 3, 3], 3)
+  ).toBe(3);
+  expect(
+    findLastIndexOfLessOrEqual(
+      [3, 4, 6, 7, 10],
+      5
+    )
+  ).toBe(2);
+});
+
+/**
+ * Find first idx of the element less or equal to target
+ * @param {Array<number>} arr
+ * @param {number} target
+ * @returns
+ */
+function findFirstIndexOfLessOrEqual(
+  arr,
+  target
+) {
+  let [leftIdx, rightIdx] = [0, arr.length - 1];
+  let res = -1;
+  while (leftIdx <= rightIdx) {
+    const midIdx = Math.floor(
+      leftIdx + (rightIdx - leftIdx) / 2
+    );
+    if (target >= arr[midIdx]) {
+      res = midIdx;
+      leftIdx = midIdx + 1;
+    } else {
+      rightIdx = midIdx - 1;
+    }
+  }
+
+  return res;
+}
+
+test('shall work when repeat', () => {
+  expect(
+    findFirstIndexOfLessOrEqual(
+      [3, 4, 6, 7, 10],
+      5
+    )
+  ).toBe(1);
+  expect(
+    findFirstIndexOfLessOrEqual(
+      [3, 4, 6, 7, 10],
+      7
+    )
+  ).toBe(3);
+});
