@@ -3299,3 +3299,73 @@ test('shall work when repeat', () => {
     )
   ).toBe(3);
 });
+
+/**
+ * @param {number[]} nums
+ * @return {number[][]}
+ * @algo
+ * for num of nums[0..=nums.length - 3]
+ *   two sum checking(two pointers)
+ *     de-duplicating
+ *       a. if left and leftNext dup, jump to left next
+ *       b. if right and rightPrev dup, jump to prev right
+ */
+function threeSum(nums) {
+  const len = nums.length;
+  nums.sort((a, b) => a - b);
+  const res = [];
+
+  for (let idx = 0; idx < len - 2; idx++) {
+    if (idx > 0 && nums[idx] == nums[idx - 1]) {
+      continue;
+    }
+
+    let leftIdx = idx + 1;
+    let rightIdx = len - 1;
+    while (leftIdx < rightIdx) {
+      const sum =
+        nums[idx] +
+        nums[leftIdx] +
+        nums[rightIdx];
+      if (sum < 0) {
+        leftIdx += 1;
+        continue;
+      }
+      if (sum > 0) {
+        rightIdx -= 1;
+        continue;
+      }
+
+      res.push([
+        nums[idx],
+        nums[leftIdx],
+        nums[rightIdx],
+      ]);
+      while (
+        leftIdx < rightIdx &&
+        nums[leftIdx] == nums[leftIdx + 1]
+      ) {
+        leftIdx += 1;
+      }
+      while (
+        leftIdx < rightIdx &&
+        nums[rightIdx] == nums[rightIdx - 1]
+      ) {
+        rightIdx -= 1;
+      }
+      leftIdx += 1;
+      rightIdx -= 1;
+    }
+  }
+
+  return res;
+}
+
+test('shall work', () => {
+  expect(threeSum([1, 0, -1])).toEqual([
+    [-1, 0, 1],
+  ]);
+  expect(threeSum([-1, 2, -1, -1])).toEqual([
+    [-1, -1, 2],
+  ]);
+});
