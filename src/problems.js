@@ -3302,20 +3302,124 @@ test('shall work when repeat', () => {
 
 /**
  * @param {number[]} nums
+ * @param {number} target
+ * @return {number[][]}
+ * @algo
+ * nSum: match two sum with target
+ * -> nSum(n-1, target - curr), if n > 2
+ * -> check two sum, update res and quadNums
+ */
+function fourSum(nums, target) {
+  nums.sort((a, b) => a - b);
+  let [res, quadNums] = [[], []];
+  const nSum = (nums, info) => {
+    const { n, startIdx, target } = info;
+    if (n > 2) {
+      for (
+        let idx = startIdx;
+        idx <= nums.length - n;
+        idx++
+      ) {
+        if (
+          idx > startIdx &&
+          nums[idx] === nums[idx - 1]
+        ) {
+          continue;
+        }
+
+        const info = {
+          n: n - 1,
+          startIdx: idx + 1,
+          target: target - nums[idx],
+        };
+        quadNums.push(nums[idx]);
+        nSum(nums, info);
+        quadNums.pop();
+      }
+      return;
+    }
+
+    let [leftIdx, rightIdx] = [
+      startIdx,
+      nums.length - 1,
+    ];
+    while (leftIdx < rightIdx) {
+      const sum = nums[leftIdx] + nums[rightIdx];
+      if (sum > target) {
+        rightIdx--;
+        continue;
+      }
+      if (sum < target) {
+        leftIdx++;
+        continue;
+      }
+
+      res.push(
+        quadNums.concat([
+          nums[leftIdx],
+          nums[rightIdx],
+        ])
+      );
+
+      while (
+        leftIdx < rightIdx &&
+        nums[leftIdx] === nums[leftIdx + 1]
+      ) {
+        leftIdx++;
+      }
+      leftIdx++;
+      rightIdx--;
+    }
+  };
+
+  nSum(nums, {
+    n: 4,
+    startIdx: 0,
+    target,
+  });
+
+  return res;
+}
+
+test('shall work', () => {
+  expect(fourSum([-1, 0, -1, 2], 0)).toEqual([
+    [-1, -1, 0, 2],
+  ]);
+
+  expect(
+    fourSum([1, 0, -1, 0, -2, 2], 0)
+  ).toEqual([
+    [-2, -1, 1, 2],
+    [-2, 0, 0, 2],
+    [-1, 0, 0, 1],
+  ]);
+
+  expect(fourSum([2, 2, 2, 2, 2], 8)).toEqual([
+    [2, 2, 2, 2],
+  ]);
+
+  expect(
+    fourSum([-2, -1, -1, 1, 1, 2, 2], 0)
+  ).toEqual([
+    [-2, -1, 1, 2],
+    [-1, -1, 1, 1],
+  ]);
+});
+
+/**
+ * @param {number[]} nums
  * @return {number[][]}
  * @algo
  * for num of nums[0..=nums.length - 3]
  *   two sum checking(two pointers)
- *     de-duplicating
- *       a. if left and leftNext dup, jump to left next
- *       b. if right and rightPrev dup, jump to prev right
+ *     if left and leftNext dup, jump to left next
  */
 function threeSum(nums) {
   const len = nums.length;
   nums.sort((a, b) => a - b);
   const res = [];
 
-  for (let idx = 0; idx < len - 2; idx++) {
+  for (let idx = 0; idx <= len - 3; idx++) {
     if (idx > 0 && nums[idx] == nums[idx - 1]) {
       continue;
     }
@@ -3341,17 +3445,12 @@ function threeSum(nums) {
         nums[leftIdx],
         nums[rightIdx],
       ]);
+
       while (
         leftIdx < rightIdx &&
         nums[leftIdx] == nums[leftIdx + 1]
       ) {
         leftIdx += 1;
-      }
-      while (
-        leftIdx < rightIdx &&
-        nums[rightIdx] == nums[rightIdx - 1]
-      ) {
-        rightIdx -= 1;
       }
       leftIdx += 1;
       rightIdx -= 1;
@@ -3369,3 +3468,87 @@ test('shall work', () => {
     [-1, -1, 2],
   ]);
 });
+
+/**
+ * @param {number[]} nums1
+ * @param {number[]} nums2
+ * @param {number[]} nums3
+ * @param {number[]} nums4
+ * @return {number}
+ */
+function fourSumCount(
+  nums1,
+  nums2,
+  nums3,
+  nums4
+) {
+  const readTwoSumToCount = {};
+  let res = 0;
+  for (const num1 of nums1) {
+    for (const num2 of nums2) {
+      const sum = num1 + num2;
+      if (!readTwoSumToCount[sum]) {
+        readTwoSumToCount[sum] = 1;
+        continue;
+      }
+      readTwoSumToCount[sum]++;
+    }
+  }
+
+  for (const num3 of nums3) {
+    for (const num4 of nums4) {
+      const sum = num3 + num4;
+      const match = 0 - sum;
+      if (readTwoSumToCount[match]) {
+        res += readTwoSumToCount[match];
+      }
+    }
+  }
+
+  return res;
+}
+
+/**
+ * @param {number[]} nums
+ * @param {number} target
+ * @return {number}
+ */
+function threeSumClosest(nums, target) {
+  nums.sort((a, b) => a - b);
+  let closestSum = Infinity;
+  for (
+    let idx = 0;
+    idx <= nums.length - 3;
+    idx++
+  ) {
+    let [leftIdx, rightIdx] = [
+      idx + 1,
+      nums.length - 1,
+    ];
+
+    while (leftIdx < rightIdx) {
+      const sum =
+        nums[idx] +
+        nums[leftIdx] +
+        nums[rightIdx];
+      if (
+        Math.abs(sum - target) <
+        Math.abs(closestSum - target)
+      ) {
+        closestSum = sum;
+      }
+      if (sum > target) {
+        rightIdx--;
+        continue;
+      }
+      if (sum < target) {
+        leftIdx++;
+        continue;
+      }
+
+      return target;
+    }
+  }
+
+  return closestSum;
+}
