@@ -3552,3 +3552,100 @@ function threeSumClosest(nums, target) {
 
   return closestSum;
 }
+
+/**
+ * @param {number[]} nums
+ * @return {number}
+ * @algo
+ * for i in 0..len
+ *   reset prevSum=0 if prevSum has no contribution to max sum
+ *   record prevSum to currSum
+ *   update maxSum if needed
+ */
+function maxSubArray(nums) {
+  let maxSum = nums[0];
+  let prevSum = 0;
+  for (const num of nums) {
+    if (prevSum < 0) {
+      prevSum = 0;
+    }
+    const currSum = prevSum + num;
+    maxSum = Math.max(maxSum, currSum);
+    prevSum = currSum;
+  }
+
+  return maxSum;
+}
+
+/**
+ * @param {number[]} nums
+ * @return {string}
+ * @algo
+ * sort nums based on following steps
+ * a. let catOpt1 = a cat b
+ * b. let catOpt2 = b cat a
+ * c. campare catOpt1 to catOpt2
+ * -> 0, if nums[0] === "0"
+ * -> nums.join("")
+ */
+function largestNumber(nums) {
+  const sorted = nums
+    .map((num) => num.toString())
+    .sort((str1, str2) => {
+      const [catOpt1, catOpt2] = [
+        str1 + str2,
+        str2 + str1,
+      ];
+      return catOpt1 < catOpt2 ? 1 : -1;
+    });
+  if (sorted[0] === '0') {
+    return '0';
+  }
+  return sorted.join('');
+}
+
+/**
+ * @param {number} num
+ * @return {number}
+ * @algo
+ * convert num to chars array
+ * -> 0, if num == 0
+ * -> "-" + joined sorted chars array, if num < 0
+ * shift "-"
+ * sort chars ascendingly
+ * -> joined sorted chars array, if num > 0
+ * sort chars descendingly
+ * if sort chars[0] === "0", swap 0 and firtNoneZero idx of chars array
+ */
+function smallestNumber(num) {
+  if (num === 0) {
+    return 0;
+  }
+  const isNeg = num < 0;
+  const chars = num.toString().split('');
+  if (isNeg) {
+    chars.shift();
+    const sorted = chars.sort((a, b) =>
+      a < b ? 1 : -1
+    );
+    return Number(`-${sorted.join('')}`);
+  }
+
+  const sorted = chars.sort((a, b) =>
+    a < b ? -1 : 1
+  );
+  if (sorted[0] === '0') {
+    let firstNoneZero = 1;
+    while (
+      firstNoneZero < sorted.length &&
+      sorted[firstNoneZero] === '0'
+    ) {
+      firstNoneZero += 1;
+    }
+    [sorted[0], sorted[firstNoneZero]] = [
+      sorted[firstNoneZero],
+      sorted[0],
+    ];
+  }
+  return Number(sorted.join(''));
+}
