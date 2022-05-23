@@ -3649,3 +3649,98 @@ function smallestNumber(num) {
   }
   return Number(sorted.join(''));
 }
+
+/**
+ * @param {number} numerator
+ * @param {number} denominator
+ * @return {string}
+ * @algo
+ * -> "0", if numerator is 0
+ * cat "-" to resStr, if res will be negative
+ * calculate quotient and reminder of divisor / divident repeat repeatly
+ *   push quotient to res
+ *   -> return res if reminder == 0
+ *   push "." to res if res isn't having "." yet
+ *   -> return res with repeated nums wrapped in "(" ")", if reminder was read
+ *
+ *   readQuotientToIdx[reminder] = res.len - 1, if res has "."
+ *   update divisor, continue calculating
+ */
+function fractionToDecimal(
+  numerator,
+  denominator
+) {
+  if (numerator == 0) {
+    return '0';
+  }
+
+  let res = [];
+  let readReminderToIdx = {};
+  let divisor = Math.abs(numerator);
+  const divident = Math.abs(denominator);
+  const isNeg =
+    (numerator < 0 ? 1 : 0) ^
+    (denominator < 0 ? 1 : 0);
+
+  if (isNeg == 1) {
+    res.push('-');
+  }
+
+  let hasDot = false;
+  while (true) {
+    const reminder = divisor % divident;
+    const quotient = Math.floor(
+      divisor / divident
+    );
+
+    res.push(quotient);
+
+    if (reminder == 0) {
+      return res.join('');
+    }
+
+    if (!hasDot) {
+      res.push('.');
+      hasDot = true;
+    }
+
+    if (
+      readReminderToIdx[reminder] != undefined
+    ) {
+      const start =
+        readReminderToIdx[reminder] + 1;
+      const end = res.length - 1;
+      let resStr = '';
+      for (let idx = 0; idx <= end; idx++) {
+        if (idx == start) {
+          resStr += '(';
+        }
+        resStr += res[idx];
+      }
+      resStr += ')';
+
+      return resStr;
+    }
+
+    if (hasDot) {
+      readReminderToIdx[reminder] =
+        res.length - 1;
+    }
+    divisor = reminder * 10;
+  }
+}
+
+it('shall return 0 if numerator==0', () => {
+  expect(fractionToDecimal(0, 2));
+  expect(fractionToDecimal(0, 22));
+});
+it('shall wrap () if reminder repeats', () => {
+  expect(fractionToDecimal(1, 3)).toBe('0.(3)');
+  expect(fractionToDecimal(4, 333)).toBe(
+    '0.(012)'
+  );
+});
+it('shall pad - if res is negative', () => {
+  expect(fractionToDecimal(-1, 3)).toBe('-0.(3)');
+  expect(fractionToDecimal(1, -3)).toBe('-0.(3)');
+});
