@@ -3744,3 +3744,112 @@ it('shall pad - if res is negative', () => {
   expect(fractionToDecimal(-1, 3)).toBe('-0.(3)');
   expect(fractionToDecimal(1, -3)).toBe('-0.(3)');
 });
+
+/**
+ * @param {number[]} nums
+ * @return {number[]}
+ * @algo
+ * maintain a map of largestNum to longest divisible subset
+ * traverse num in nums
+ *  iterate over the map, update the map
+ * -> longest subset of map
+ */
+function largestDivisibleSubset1(nums) {
+  const largestNumToLDS = {};
+  nums.sort((a, b) => a - b);
+  nums.forEach((ele, idx) => {
+    if (idx === 0) {
+      largestNumToLDS[ele] = [ele];
+      return;
+    }
+
+    for (const [
+      largestNum,
+      sub,
+    ] of Object.entries(largestNumToLDS)) {
+      if (
+        largestNum === '1' ||
+        ele % Number(largestNum) === 0
+      ) {
+        if (
+          largestNumToLDS[ele] === undefined ||
+          sub.length >
+            largestNumToLDS[ele].length - 1
+        ) {
+          largestNumToLDS[ele] = sub.concat(ele);
+          continue;
+        }
+      }
+    }
+
+    if (largestNumToLDS[ele] === undefined) {
+      largestNumToLDS[ele] = [ele];
+    }
+  });
+
+  let longestSub = [];
+  for (const sub of Object.values(
+    largestNumToLDS
+  )) {
+    if (sub.length > longestSub.length) {
+      longestSub = sub;
+    }
+  }
+
+  return longestSub;
+}
+
+/**
+ * @param {number[]} nums
+ * @return {number[]}
+ * @algo
+ * maintain a list where list[largestNum's idx] contains the LDS
+ * traverse num in nums
+ *  iterate over the list, update the list when needed
+ * -> longest subset of list
+ */
+function largestDivisibleSubset(nums) {
+  const LDS = [];
+  nums.sort((a, b) => a - b);
+  nums.forEach((ele, idx) => {
+    LDS.forEach((sub, largestNumIdx) => {
+      const largestNum = nums[largestNumIdx];
+      if (
+        largestNum === 1 ||
+        ele % largestNum === 0
+      ) {
+        if (
+          LDS[idx] === undefined ||
+          sub.length > LDS[idx].length - 1
+        ) {
+          LDS[idx] = sub.concat(ele);
+        }
+      }
+    });
+
+    if (LDS[idx] === undefined) {
+      LDS[idx] = [ele];
+    }
+  });
+
+  let longestSub = [];
+  for (const sub of LDS) {
+    if (sub.length > longestSub.length) {
+      longestSub = sub;
+    }
+  }
+
+  return longestSub;
+}
+
+test('shall works', () => {
+  expect(
+    largestDivisibleSubset([1, 2, 4])
+  ).toEqual([1, 2, 4]);
+  expect(
+    largestDivisibleSubset([1, 2, 10, 20])
+  ).toEqual([1, 2, 10, 20]);
+  expect(
+    largestDivisibleSubset([1, 4, 10, 8])
+  ).toEqual([1, 4, 8]);
+});
